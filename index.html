@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>React.js — Laboratorio Universitario</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --bg2: #111827;
+    --bg3: #1a2235;
+    --accent: #61dafb;
+    --accent2: #f7df1e;
+    --accent3: #ff6b6b;
+    --accent4: #a8ff78;
+    --text: #e8eaf6;
+    --text2: #9ba3bf;
+    --border: rgba(97,218,251,0.15);
+    --mono: 'Space Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* ── SLIDES CONTAINER ── */
+  .deck {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    padding: 3rem 4rem;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+
+  .slide.active {
+    display: flex;
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .slide.exit {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+
+  /* ── NAV ── */
+  .nav {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: rgba(17,24,39,0.95);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 0.6rem 1.5rem;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+  }
+
+  .nav-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 0.4rem 1.1rem;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .nav-btn:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+
+  .slide-counter {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text2);
+    min-width: 60px;
+    text-align: center;
+  }
+
+  .progress-dots {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .dot.active { background: var(--accent); transform: scale(1.4); }
+
+  /* ── KEYBOARD HINT ── */
+  .key-hint {
+    position: fixed;
+    top: 1.2rem;
+    right: 1.5rem;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+    opacity: 0.6;
+  }
+
+  /* ── SLIDE LABEL ── */
+  .slide-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .slide-tag::before {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  /* ── TYPOGRAPHY ── */
+  h1 { font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 700; line-height: 1.1; }
+  h2 { font-size: clamp(1.6rem, 3.5vw, 2.6rem); font-weight: 600; line-height: 1.2; }
+  h3 { font-size: 1.2rem; font-weight: 600; }
+  p  { font-size: 1.05rem; line-height: 1.7; color: var(--text2); }
+
+  .big-num {
+    font-family: var(--mono);
+    font-size: 5rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  /* ── CODE BLOCKS ── */
+  .code-wrap {
+    background: #060a14;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    flex: 1;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.7rem 1rem;
+    background: rgba(97,218,251,0.05);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dot-r { width: 10px; height: 10px; border-radius: 50%; background: #ff5f57; }
+  .dot-y { width: 10px; height: 10px; border-radius: 50%; background: #febc2e; }
+  .dot-g { width: 10px; height: 10px; border-radius: 50%; background: #28c840; }
+
+  .code-filename {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+    margin-left: 0.5rem;
+  }
+
+  pre {
+    padding: 1.2rem 1.5rem;
+    font-family: var(--mono);
+    font-size: 0.92rem;
+    line-height: 1.8;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  /* Syntax highlighting */
+  .kw  { color: #c792ea; }
+  .fn  { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .cmt { color: #546e7a; font-style: italic; }
+  .num { color: #f78c6c; }
+  .tag { color: #f07178; }
+  .attr{ color: #ffcb6b; }
+  .val { color: #c3e88d; }
+  .brc { color: #89ddff; }
+
+  /* ── BOXES ── */
+  .info-box {
+    background: rgba(97,218,251,0.07);
+    border: 1px solid rgba(97,218,251,0.25);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 10px 10px 0;
+    padding: 1rem 1.2rem;
+  }
+
+  .warn-box {
+    background: rgba(247,223,30,0.07);
+    border: 1px solid rgba(247,223,30,0.2);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 10px 10px 0;
+    padding: 1rem 1.2rem;
+  }
+
+  .success-box {
+    background: rgba(168,255,120,0.07);
+    border: 1px solid rgba(168,255,120,0.2);
+    border-left: 3px solid var(--accent4);
+    border-radius: 0 10px 10px 0;
+    padding: 1rem 1.2rem;
+  }
+
+  .box-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.4rem;
+  }
+
+  .info-box .box-label { color: var(--accent); }
+  .warn-box .box-label { color: var(--accent2); }
+  .success-box .box-label { color: var(--accent4); }
+
+  .info-box p, .warn-box p, .success-box p {
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+
+  /* ── GRID LAYOUTS ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem; }
+
+  /* ── CONCEPT CARDS ── */
+  .concept-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem;
+  }
+
+  .concept-card .icon {
+    font-size: 2rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .concept-card h3 {
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+    color: var(--text);
+  }
+
+  .concept-card p {
+    font-size: 0.88rem;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  /* ── TIMELINE ── */
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .tl-item {
+    display: grid;
+    grid-template-columns: 90px 40px 1fr;
+    align-items: start;
+    gap: 0;
+  }
+
+  .tl-time {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    text-align: right;
+    padding-right: 1rem;
+    padding-top: 0.15rem;
+  }
+
+  .tl-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .tl-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 2px var(--accent);
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  .tl-line {
+    width: 1px;
+    flex: 1;
+    background: var(--border);
+    min-height: 36px;
+  }
+
+  .tl-content {
+    padding: 0 0 1.5rem 1rem;
+  }
+
+  .tl-content h3 { font-size: 0.95rem; color: var(--text); margin-bottom: 0.2rem; }
+  .tl-content p { font-size: 0.85rem; color: var(--text2); }
+
+  /* ── STEP LIST ── */
+  .step-list { list-style: none; display: flex; flex-direction: column; gap: 0.9rem; }
+
+  .step-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: rgba(97,218,251,0.1);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .step-text { font-size: 0.95rem; color: var(--text2); line-height: 1.6; padding-top: 2px; }
+  .step-text strong { color: var(--text); }
+
+  /* ── INLINE CODE ── */
+  code {
+    font-family: var(--mono);
+    font-size: 0.85em;
+    background: rgba(97,218,251,0.1);
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  /* ── TITLE SLIDE ── */
+  .title-slide {
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .title-slide::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(97,218,251,0.08) 0%, transparent 70%);
+    right: -100px; top: -100px;
+    pointer-events: none;
+  }
+
+  .title-slide::after {
+    content: '';
+    position: absolute;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(247,223,30,0.05) 0%, transparent 70%);
+    left: 200px; bottom: 50px;
+    pointer-events: none;
+  }
+
+  .react-logo {
+    font-size: 5rem;
+    line-height: 1;
+    margin-bottom: 1.5rem;
+    animation: spin 8s linear infinite;
+    display: inline-block;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  .title-meta {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 5px 14px;
+    border-radius: 30px;
+    border: 1px solid;
+  }
+
+  .meta-badge.blue  { border-color: var(--accent);  color: var(--accent);  background: rgba(97,218,251,0.07); }
+  .meta-badge.yellow{ border-color: var(--accent2); color: var(--accent2); background: rgba(247,223,30,0.07); }
+  .meta-badge.green { border-color: var(--accent4); color: var(--accent4); background: rgba(168,255,120,0.07); }
+
+  /* ── HIGHLIGHT ── */
+  .hl { color: var(--accent); }
+  .hl2 { color: var(--accent2); }
+  .hl3 { color: var(--accent4); }
+
+  /* ── DIVIDER ── */
+  hr { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+
+  /* ── CHALLENGE SLIDE ── */
+  .challenge-num {
+    font-family: var(--mono);
+    font-size: 8rem;
+    font-weight: 700;
+    color: rgba(97,218,251,0.08);
+    position: absolute;
+    right: 3rem;
+    top: 2rem;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  /* ── TWO-COL with code ── */
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .split-left {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .split-right {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  /* ── SCROLLABLE code ── */
+  .code-scroll pre {
+    max-height: calc(100vh - 280px);
+    overflow-y: auto;
+  }
+
+  /* ── COMPARISON ── */
+  .compare-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 0.5rem 0;
+  }
+
+  .compare-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+  }
+
+  .compare-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.6rem;
+  }
+
+  .compare-box.bad  .compare-label { color: var(--accent3); }
+  .compare-box.good .compare-label { color: var(--accent4); }
+
+  .compare-box pre {
+    font-size: 0.8rem;
+    padding: 0;
+    line-height: 1.7;
+  }
+
+  /* ── SECTION INTRO ── */
+  .section-intro {
+    background: linear-gradient(135deg, rgba(97,218,251,0.05) 0%, transparent 60%);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .section-phase {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .big-accent {
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 1rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="key-hint">← → para navegar · Espacio para avanzar</div>
+
+<div class="deck" id="deck">
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SLIDE 01 — PORTADA -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="slide active title-slide" id="s1">
+    <div class="slide-tag">Laboratorio universitario</div>
+    <div class="react-logo">⚛</div>
+    <h1>Introducción a<br><span class="hl">React.js</span></h1>
+    <p style="margin-top:1rem; max-width:520px; color:var(--text2);">
+      En 2 horas vas a instalar el entorno, entender los conceptos fundamentales
+      y crear tu primera aplicación interactiva.
+    </p>
+    <div class="title-meta">
+      <span class="meta-badge blue">⏱ 2 horas</span>
+      <span class="meta-badge yellow">⚡ Laboratorio práctico</span>
+      <span class="meta-badge green">✓ Sin experiencia previa</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SLIDE 02 — AGENDA -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="slide" id="s2">
+    <div class="slide-tag">Plan del laboratorio</div>
+    <h2>¿Qué vamos a hacer hoy?</h2>
+    <p style="margin: 0.6rem 0 2rem;">4 fases progresivas, cada una construye sobre la anterior.</p>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-time">0:00 – 0:20</div>
+        <div class="tl-marker"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-content">
+          <h3>⚙️ Fase 1 — Instalación del entorno</h3>
+          <p>Node.js, npm, Vite. Ver React corriendo en el navegador.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">0:20 – 0:55</div>
+        <div class="tl-marker"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-content">
+          <h3>🧩 Fase 2 — Componentes y JSX</h3>
+          <p>La base de React: cómo se construye una UI con piezas reutilizables.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">0:55 – 1:35</div>
+        <div class="tl-marker"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-content">
+          <h3>⚡ Fase 3 — Estado e interactividad</h3>
+          <p>useState: cómo React reacciona a los datos y actualiza la pantalla.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">1:35 – 2:00</div>
+        <div class="tl-marker"><div class="tl-dot" style="background:var(--accent2); box-shadow: 0 0 0 2px var(--accent2)"></div><div class="tl-line" style="background: transparent"></div></div>
+        <div class="tl-content">
+          <h3>🚀 Fase 4 — Mini-proyecto: Lista de Tareas</h3>
+          <p>Integramos todo en una app real y funcional.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SLIDE 03 — ¿QUÉ ES REACT? -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="slide" id="s3">
+    <div class="slide-tag">Contexto</div>
+    <h2>¿Qué es React?</h2>
+    <p style="margin: 0.6rem 0 1.5rem;">Antes de instalar cualquier cosa, entendamos qué problema resuelve.</p>
+
+    <div class="grid-3" style="margin-bottom: 1.2rem;">
+      <div class="concept-card">
+        <div class="icon">📚</div>
+        <h3>¿Qué es?</h3>
+        <p>Una <strong style="color:var(--text)">biblioteca de JavaScript</strong> creada por Meta (Facebook) en 2013 para construir interfaces de usuario.</p>
+      </div>
+      <div class="concept-card">
+        <div class="icon">🎯</div>
+        <h3>¿Para qué sirve?</h3>
+        <p>Construir interfaces web <strong style="color:var(--text)">rápidas e interactivas</strong> donde los datos cambian sin recargar la página entera.</p>
+      </div>
+      <div class="concept-card">
+        <div class="icon">🌍</div>
+        <h3>¿Quién lo usa?</h3>
+        <p>Facebook, Instagram, Netflix, Airbnb, Uber, WhatsApp Web. Es la biblioteca front-end más popular del mundo.</p>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <div class="box-label">La idea central</div>
+      <p>En lugar de manipular el HTML directamente con <code>document.getElementById()</code>, con React describís <strong>cómo debería verse la pantalla según tus datos</strong> y React se encarga de actualizar el DOM automáticamente.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SLIDE 04 — JS VS REACT -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="slide" id="s4">
+    <div class="slide-tag">Motivación</div>
+    <h2>JavaScript puro vs. React</h2>
+    <p style="margin: 0.6rem 0 1.2rem;">¿Por qué no usar solo JavaScript? Mirá la diferencia:</p>
+
+    <div class="compare-row">
+      <div class="compare-box bad">
+        <div class="compare-label">❌ JavaScript puro — difícil de mantener</div>
+        <pre><span class="cmt">// Tenés que manipular el DOM manualmente</span>
+<span class="kw">let</span> contador = <span class="num">0</span>;
+
+<span class="kw">function</span> <span class="fn">sumar</span>() {
+  contador = contador + <span class="num">1</span>;
+  <span class="cmt">// Tenés que buscar el elemento</span>
+  <span class="kw">const</span> el = document.<span class="fn">getElementById</span>(<span class="str">'num'</span>);
+  <span class="cmt">// Y actualizarlo manualmente</span>
+  el.textContent = contador;
+}</pre>
+      </div>
+      <div class="compare-box good">
+        <div class="compare-label">✅ React — declarativo y simple</div>
+        <pre><span class="kw">import</span> { useState } <span class="fn">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">Contador</span>() {
+  <span class="kw">const</span> [contador, setContador] = <span class="fn">useState</span>(<span class="num">0</span>);
+  <span class="cmt">// React actualiza la UI solo</span>
+  <span class="kw">return</span> <span class="brc">&lt;</span><span class="tag">button</span> <span class="attr">onClick</span>=<span class="brc">{</span>() => <span class="fn">setContador</span>(contador+<span class="num">1</span>)<span class="brc">}&gt;</span>
+    <span class="brc">{</span>contador<span class="brc">}</span>
+  <span class="brc">&lt;/</span><span class="tag">button</span><span class="brc">&gt;</span>;
+}</pre>
+      </div>
+    </div>
+
+    <div class="warn-box" style="margin-top: 1.2rem;">
+      <div class="box-label">🔑 Concepto clave</div>
+      <p>Con JavaScript puro, vos le decís <em>"cómo"</em> cambiar el DOM. Con React, le decís <em>"qué"</em> mostrar según los datos. React decide <em>cómo</em> hacerlo eficientemente.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SLIDE 05 — SECCIÓN FASE 1 -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="slide" id="s5">
+    <div class="slide-tag">Fase 1 · 0:00 – 0:20</div>
+    <div class="section-intro">
+      <div class="section-phase">Empezamos ahora</div>
+      <div class="big-accent"><span class="hl">Instalación</span><br>del entorno</div>
+      <p style="max-width: 480px; font-size: 1.05rem;">Vamos a instalar todo lo necesario para desarrollar con React: Node.js, npm y crear nuestro primer proyecto con Vite.</p>
+      <p style="margin-top: 1rem; font-size: 0.9rem;">⏱ Duración estimada: <strong style="color:var(--accent)">20 minutos</strong></p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SLIDE 06 — NODE.JS -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="slide" id="s6">
+    <div class="slide-tag">Fase 1 · Paso 1</div>
+    <h2>¿Qué es Node.js y por qué lo necesitamos?</h2>
+
+    <div class="grid-2" style="margin: 1.2rem 0; gap: 1.2rem;">
+      <div class="concept-card">
+        <div class="icon">🟢</div>
+        <h3>Node.js</h3>
+        <p>Permite ejecutar JavaScript <strong style="color:var(--text)">fuera del navegador</strong>, en tu computadora. React necesita Node para instalarse y construirse.</p>
+      </div>
+      <div class="concept-card">
+        <div class="icon">📦</div>
+        <h3>npm (Node Package Manager)</h3>
+        <p>Viene incluido con Node. Es el <strong style="color:var(--text)">gestor de paquetes</strong>: descarga React y todas sus dependencias.</p>
+      </div>
+    </div>
+
+    <div class="info-box" style="margin-bottom: 1rem;">
+      <div class="box-label">📥 Instalación</div>
+      <p>Descargá <strong>Node.js LTS</strong> (Long Term Support) desde <code>nodejs.org</code> → hacé doble clic en el instalador → siguiente, siguiente, instalar. Eso es todo.</p>
+    </div>
+
+    <p style="margin-bottom: 0.6rem; font-size: 0.9rem; color: var(--text2);">Después de instalarlo, verificá en la terminal:</p>
+    <div class="code-wrap">
+      <div class="code-header"><div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div><span class="code-filename">terminal</span></div>
+      <pre><span class="cmt"># Verificar que Node está instalado</span>
+node --version
+<span class="cmt"># Resultado esperado: v18.x.x o superior</span>
+
+npm --version
+<span class="cmt"># Resultado esperado: 9.x.x o superior</span></pre>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SLIDE 07 — CREAR PROYECTO CON VITE -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="slide" id="s7">
+    <div class="slide-tag">Fase 1 · Paso 2</div>
+    <h2>Crear el proyecto con <span class="hl">Vite</span></h2>
+    <p style="margin: 0.5rem 0 1.2rem;">Vite es una herramienta moderna que crea el proyecto y lo sirve en el navegador ultra rápido. Ejecutá estos comandos uno por uno:</p>
+
+    <div class="code-wrap" style="flex: 1;">
+      <div class="code-header"><div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div><span class="code-filename">terminal</span></div>
+      <pre><span class="cmt"># 1. Crear el proyecto (te va a preguntar el nombre)</span>
+npm create vite@latest mi-primera-app
+
+<span class="cmt"># Te pregunta: Select a framework → elegí React</span>
+<span class="cmt"># Te pregunta: Select a variant → elegí JavaScript</span>
+
+<span class="cmt"># 2. Entrar a la carpeta del proyecto</span>
+cd mi-primera-app
+
+<span class="cmt"># 3. Instalar todas las dependencias de React</span>
+npm install
+
+<span class="cmt"># 4. Iniciar el servidor de desarrollo</span>
+npm run dev</pre>
+    </div>
+
+    <div class="success-box" style="margin-top: 1rem;">
+      <div class="box-label">✅ Si funciona correctamente</div>
+      <p>La terminal mostrará: <code>Local: http://localhost:5173/</code> — abrí esa URL en el navegador. Deberías ver el logo de React girando. ¡Felicitaciones, ya tenés React funcionando!</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SLIDE 08 — ESTRUCTURA DEL PROYECTO -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="slide" id="s8">
+    <div class="slide-tag">Fase 1 · Paso 3</div>
+    <h2>¿Qué archivos creó Vite?</h2>
+    <p style="margin: 0.5rem 0 1.2rem;">Abrí el proyecto en VS Code con <code>code .</code> y explorá esta estructura:</p>
+
+    <div class="split">
+      <div class="split-left">
+        <div class="code-wrap">
+          <div class="code-header"><div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div><span class="code-filename">estructura del proyecto</span></div>
+          <pre>mi-primera-app/
+├── <span class="hl">src/</span>                <span class="cmt">← Tu código va aquí</span>
+│   ├── <span class="attr">App.jsx</span>         <span class="cmt">← Componente principal</span>
+│   ├── <span class="attr">App.css</span>         <span class="cmt">← Estilos de App</span>
+│   ├── <span class="attr">main.jsx</span>        <span class="cmt">← Punto de entrada</span>
+│   └── <span class="attr">index.css</span>       <span class="cmt">← Estilos globales</span>
+├── <span class="str">public/</span>             <span class="cmt">← Archivos estáticos</span>
+├── <span class="num">index.html</span>          <span class="cmt">← El HTML base</span>
+├── <span class="num">package.json</span>        <span class="cmt">← Dependencias</span>
+└── <span class="cmt">vite.config.js</span>      <span class="cmt">← Config de Vite</span></pre>
+        </div>
+      </div>
+      <div class="split-left">
+        <div class="info-box">
+          <div class="box-label">📌 Lo más importante</div>
+          <p>Vas a trabajar casi exclusivamente dentro de la carpeta <code>src/</code>. El archivo <code>App.jsx</code> es donde empieza todo — es tu componente principal.</p>
+        </div>
+        <div class="warn-box">
+          <div class="box-label">🔧 VS Code — Extensión recomendada</div>
+          <p>Instalá <strong style="color:var(--text)">"ES7+ React/Redux/React-Native snippets"</strong>. Te va a generar código automáticamente al escribir <code>rfce</code> + Enter.</p>
+        </div>
+        <div class="concept-card" style="margin-top: 0.8rem;">
+          <h3 style="font-size: 0.9rem; margin-bottom: 0.3rem;">¿Qué es .jsx?</h3>
+          <p>Es JavaScript con sintaxis especial para escribir HTML dentro del código. El navegador no lo entiende directamente — Vite lo convierte a JS puro.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SLIDE 09 — SECCIÓN FASE 2 -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="slide" id="s9">
+    <div class="slide-tag">Fase 2 · 0:20 – 0:55</div>
+    <div class="section-intro">
+      <div class="section-phase">La base de todo</div>
+      <div class="big-accent"><span class="hl">Componentes</span><br>y JSX</div>
+      <p style="max-width: 480px; font-size: 1.05rem;">Un componente es el bloque fundamental de React. Todo lo que ves en la pantalla es un componente o está hecho de componentes.</p>
+      <p style="margin-top: 1rem; font-size: 0.9rem;">⏱ Duración estimada: <strong style="color:var(--accent)">35 minutos</strong></p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SLIDE 10 — QUÉ ES UN COMPONENTE -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="slide" id="s10">
+    <div class="slide-tag">Fase 2 · Concepto</div>
+    <h2>¿Qué es un Componente?</h2>
+
+    <div class="grid-2" style="margin: 1rem 0;">
+      <div>
+        <p style="margin-bottom: 1rem;">Un componente es simplemente una <strong style="color:var(--text)">función de JavaScript que devuelve HTML</strong> (JSX). Eso es todo.</p>
+
+        <ul class="step-list">
+          <li class="step-item">
+            <span class="step-num">1</span>
+            <span class="step-text">El nombre <strong>siempre empieza con mayúscula</strong>: <code>MiComponente</code>, no <code>miComponente</code></span>
+          </li>
+          <li class="step-item">
+            <span class="step-num">2</span>
+            <span class="step-text"><strong>Siempre devuelve JSX</strong>: una sola cosa (un elemento raíz)</span>
+          </li>
+          <li class="step-item">
+            <span class="step-num">3</span>
+            <span class="step-text">Se <strong>usa como una etiqueta HTML</strong>: <code>&lt;MiComponente /&gt;</code></span>
+          </li>
+          <li class="step-item">
+            <span class="step-num">4</span>
+            <span class="step-text">Se puede <strong>reutilizar</strong> tantas veces como quieras</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header"><div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div><span class="code-filename">src/App.jsx</span></div>
+        <pre><span class="cmt">// Esto es un componente</span>
+<span class="kw">function</span> <span class="fn">Saludo</span>() {
+  <span class="kw">return</span> (
+    <span class="brc">&lt;</span><span class="tag">div</span><span class="brc">&gt;</span>
+      <span class="brc">&lt;</span><span class="tag">h1</span><span class="brc">&gt;</span>¡Hola Mundo!<span class="brc">&lt;/</span><span class="tag">h1</span><span class="brc">&gt;</span>
+      <span class="brc">&lt;</span><span class="tag">p</span><span class="brc">&gt;</span>Mi primer componente React<span class="brc">&lt;/</span><span class="tag">p</span><span class="brc">&gt;</span>
+    <span class="brc">&lt;/</span><span class="tag">div</span><span class="brc">&gt;</span>
+  );
+}
+
+<span class="cmt">// App usa el componente Saludo</span>
+<span class="kw">export default function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    <span class="brc">&lt;</span><span class="tag">div</span><span class="brc">&gt;</span>
+      <span class="brc">&lt;</span><span class="fn">Saludo</span> <span class="brc">/&gt;</span>
+      <span class="brc">&lt;</span><span class="fn">Saludo</span> <span class="brc">/&gt;</span>  <span class="cmt">← reutilizado!</span>
+      <span class="brc">&lt;</span><span class="fn">Saludo</span> <span class="brc">/&gt;</span>
+    <span class="brc">&lt;/</span><span class="tag">div</span><span class="brc">&gt;</span>
+  );
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SLIDE 11 — JSX REGLAS -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="slide" id="s11">
+    <div class="slide-tag">Fase 2 · JSX</div>
+    <h2>Reglas de JSX</h2>
+    <p style="margin: 0.5rem 0 1.2rem;">JSX parece HTML pero tiene diferencias importantes. Estas reglas son las que más confunden al principio:</p>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+      <div class="compare-box bad">
+        <div class="compare-label">❌ Incorrecto</div>
+        <pre><span class="cmt">// Dos elementos raíz — ERROR</span>
+<span class="kw">return</span> (
+  <span class="brc">&lt;</span><span class="tag">h1</span><span class="brc">&gt;</span>Título<span class="brc">&lt;/</span><span class="tag">h1</span><span class="brc">&gt;</span>
+  <span class="brc">&lt;</span><span class="tag">p</span><span class="brc">&gt;</span>Párrafo<span class="brc">&lt;/</span><span class="tag">p</span><span class="brc">&gt;</span>
+);
+
+<span class="cmt">// class → ERROR en JSX</span>
+<span class="brc">&lt;</span><span class="tag">div</span> <span class="attr">class</span>=<span class="str">"caja"</span><span class="brc">&gt;</span>...<span class="brc">&lt;/</span><span class="tag">div</span><span class="brc">&gt;</span>
+
+<span class="cmt">// Etiqueta no cerrada → ERROR</span>
+<span class="brc">&lt;</span><span class="tag">img</span> <span class="attr">src</span>=<span class="str">"foto.jpg"</span><span class="brc">&gt;</span></pre>
+      </div>
+      <div class="compare-box good">
+        <div class="compare-label">✅ Correcto</div>
+        <pre><span class="cmt">// Un solo elemento raíz — OK</span>
+<span class="kw">return</span> (
+  <span class="brc">&lt;&gt;</span>
+    <span class="brc">&lt;</span><span class="tag">h1</span><span class="brc">&gt;</span>Título<span class="brc">&lt;/</span><span class="tag">h1</span><span class="brc">&gt;</span>
+    <span class="brc">&lt;</span><span class="tag">p</span><span class="brc">&gt;</span>Párrafo<span class="brc">&lt;/</span><span class="tag">p</span><span class="brc">&gt;</span>
+  <span class="brc">&lt;/&gt;</span>
+);
+
+<span class="cmt">// className en JSX (no class)</span>
+<span class="brc">&lt;</span><span class="tag">div</span> <span class="attr">className</span>=<span class="str">"caja"</span><span class="brc">&gt;</span>...<span class="brc">&lt;/</span><span class="tag">div</span><span class="brc">&gt;</span>
+
+<span class="cmt">// Siempre cerrar las etiquetas</span>
+<span class="brc">&lt;</span><span class="tag">img</span> <span class="attr">src</span>=<span class="str">"foto.jpg"</span> <span class="brc">/&gt;</span></pre>
+      </div>
+    </div>
+
+    <div class="info-box" style="margin-top: 1rem;">
+      <div class="box-label">💡 JavaScript dentro de JSX</div>
+      <p>Para incluir expresiones de JavaScript dentro del HTML, usás llaves <code>{ }</code>. Por ejemplo: <code>&lt;h1&gt;{nombre}&lt;/h1&gt;</code> o <code>&lt;p&gt;{2 + 2}&lt;/p&gt;</code> mostraría "4".</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SLIDE 12 — PROPS -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="slide" id="s12">
+    <div class="slide-tag">Fase 2 · Props</div>
+    <h2>Props: pasando datos entre componentes</h2>
+    <p style="margin: 0.5rem 0 1.2rem;">Las <strong style="color:var(--accent)">props</strong> son parámetros que el componente padre le pasa al hijo. Funcionan igual que los atributos HTML.</p>
+
+    <div class="split">
+      <div class="split-left">
+        <div class="info-box">
+          <div class="box-label">📌 Concepto</div>
+          <p>Las props van <strong style="color:var(--text)">de padre a hijo, nunca al revés</strong>. Son de solo lectura — el hijo no puede modificarlas directamente.</p>
+        </div>
+        <div class="concept-card" style="margin-top: 0.8rem;">
+          <h3>Analogía</h3>
+          <p>Pensá en un componente como una función:<br>
+          <code>Tarjeta(nombre, edad)</code><br><br>
+          Las props son los argumentos que le pasás a esa función para personalizar su comportamiento.</p>
+        </div>
+      </div>
+      <div class="split-right">
+        <div class="code-wrap" style="flex: 1;">
+          <div class="code-header"><div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div><span class="code-filename">src/App.jsx — Copiá y pegá esto</span></div>
+          <pre><span class="cmt">// Componente que recibe props</span>
+<span class="kw">function</span> <span class="fn">Tarjeta</span>({ nombre, carrera, año }) {
+  <span class="kw">return</span> (
+    <span class="brc">&lt;</span><span class="tag">div</span> <span class="attr">style</span>=<span class="brc">{{</span>
+      border: <span class="str">'1px solid #61dafb'</span>,
+      padding: <span class="str">'1rem'</span>,
+      borderRadius: <span class="str">'8px'</span>,
+      margin: <span class="str">'8px'</span>
+    <span class="brc">}}&gt;</span>
+      <span class="brc">&lt;</span><span class="tag">h2</span><span class="brc">&gt;{</span>nombre<span class="brc">}&lt;/</span><span class="tag">h2</span><span class="brc">&gt;</span>
+      <span class="brc">&lt;</span><span class="tag">p</span><span class="brc">&gt;</span>Carrera: <span class="brc">{</span>carrera<span class="brc">}&lt;/</span><span class="tag">p</span><span class="brc">&gt;</span>
+      <span class="brc">&lt;</span><span class="tag">p</span><span class="brc">&gt;</span>Año: <span class="brc">{</span>año<span class="brc">}&lt;/</span><span class="tag">p</span><span class="brc">&gt;</span>
+    <span class="brc">&lt;/</span><span class="tag">div</span><span class="brc">&gt;</span>
+  );
+}
+
+<span class="cmt">// App pasa props a cada Tarjeta</span>
+<span class="kw">export default function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    <span class="brc">&lt;&gt;</span>
+      <span class="brc">&lt;</span><span class="fn">Tarjeta</span>
+        <span class="attr">nombre</span>=<span class="str">"Ana García"</span>
+        <span class="attr">carrera</span>=<span class="str">"Sistemas"</span>
+        <span class="attr">año</span>=<span class="brc">{</span><span class="num">3</span><span class="brc">}</span>
+      <span class="brc">/&gt;</span>
+      <span class="brc">&lt;</span><span class="fn">Tarjeta</span>
+        <span class="attr">nombre</span>=<span class="str">"Luis Mamani"</span>
+        <span class="attr">carrera</span>=<span class="str">"Informática"</span>
+        <span class="attr">año</span>=<span class="brc">{</span><span class="num">1</span><span class="brc">}</span>
+      <span class="brc">/&gt;</span>
+    <span class="brc">&lt;/&gt;</span>
+  );
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SLIDE 13 — LISTAS EN REACT -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="slide" id="s13">
+    <div class="slide-tag">Fase 2 · Listas</div>
+    <h2>Renderizar listas con <span class="hl">.map()</span></h2>
+    <p style="margin: 0.5rem 0 1.2rem;">Muy frecuente: tenés un array de datos y querés mostrar un componente por cada elemento.</p>
+
+    <div class="split">
+      <div class="split-left">
+        <div class="warn-box">
+          <div class="box-label">⚠️ La prop key — obligatoria</div>
+          <p>Cada elemento de una lista necesita una <code>key</code> única. React la usa internamente para saber qué cambió. Sin ella, el código funciona pero React muestra advertencias.</p>
+        </div>
+        <div class="info-box" style="margin-top: 0.8rem;">
+          <div class="box-label">💡 ¿Por qué .map() y no un for?</div>
+          <p>Dentro de JSX no podés usar sentencias (<code>for</code>, <code>if</code>) — solo expresiones. <code>.map()</code> es una expresión que devuelve un array de JSX.</p>
+        </div>
+      </div>
+      <div class="split-right">
+        <div class="code-wrap" style="flex: 1;">
+          <div class="code-header"><div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div><span class="code-filename">src/App.jsx</span></div>
+          <pre><span class="kw">export default function</span> <span class="fn">App</span>() {
+  <span class="cmt">// Un array de datos</span>
+  <span class="kw">const</span> estudiantes = [
+    { id: <span class="num">1</span>, nombre: <span class="str">'Ana'</span>,  nota: <span class="num">85</span> },
+    { id: <span class="num">2</span>, nombre: <span class="str">'Luis'</span>, nota: <span class="num">92</span> },
+    { id: <span class="num">3</span>, nombre: <span class="str">'María'</span>,nota: <span class="num">78</span> },
+  ];
+
+  <span class="kw">return</span> (
+    <span class="brc">&lt;</span><span class="tag">ul</span><span class="brc">&gt;</span>
+      {estudiantes.<span class="fn">map</span>(estudiante => (
+        <span class="brc">&lt;</span><span class="tag">li</span> <span class="attr">key</span>=<span class="brc">{</span>estudiante.id<span class="brc">}&gt;</span>
+          {estudiante.nombre} — Nota: {estudiante.nota}
+        <span class="brc">&lt;/</span><span class="tag">li</span><span class="brc">&gt;</span>
+      ))}
+    <span class="brc">&lt;/</span><span class="tag">ul</span><span class="brc">&gt;</span>
+  );
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SLIDE 14 — SECCIÓN FASE 3 -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="slide" id="s14">
+    <div class="slide-tag">Fase 3 · 0:55 – 1:35</div>
+    <div class="section-intro">
+      <div class="section-phase">Aquí React cobra vida</div>
+      <div class="big-accent"><span class="hl2">Estado</span> e<br>interactividad</div>
+      <p style="max-width: 480px; font-size: 1.05rem;">El estado (<em>state</em>) permite que los componentes <strong style="color:var(--text)">recuerden información</strong> y reaccionen a las acciones del usuario actualizando la UI automáticamente.</p>
+      <p style="margin-top: 1rem; font-size: 0.9rem;">⏱ Duración estimada: <strong style="color:var(--accent2)">40 minutos</strong></p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SLIDE 15 — useState -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="slide" id="s15">
+    <div class="slide-tag">Fase 3 · useState</div>
+    <h2>El hook <span class="hl">useState</span></h2>
+    <p style="margin: 0.5rem 0 1.2rem;">Un <strong style="color:var(--text)">hook</strong> es una función especial de React. <code>useState</code> es el más importante — permite que un componente tenga su propio estado.</p>
+
+    <div class="split">
+      <div class="split-left">
+        <div class="info-box">
+          <div class="box-label">📌 La anatomía de useState</div>
+          <pre style="font-family:var(--mono);font-size:0.85rem;line-height:2;margin-top:0.5rem">
+<span class="kw">const</span> [valor, setValor] = <span class="fn">useState</span>(inicial);
+   ↑            ↑                   ↑
+ estado    función para         valor
+ actual     cambiarlo           inicial
+          </pre>
+        </div>
+        <div class="warn-box" style="margin-top: 0.8rem;">
+          <div class="box-label">⚠️ Regla crítica</div>
+          <p><strong style="color:var(--text)">Nunca modifiques el estado directamente.</strong> Esto no funciona: <code>valor = 5</code>. Siempre usá la función setter: <code>setValor(5)</code>. Solo así React sabe que debe re-renderizar.</p>
+        </div>
+      </div>
+      <div class="split-right">
+        <div class="code-wrap" style="flex: 1;">
+          <div class="code-header"><div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div><span class="code-filename">src/App.jsx — Contador interactivo</span></div>
+          <pre><span class="kw">import</span> { useState } <span class="fn">from</span> <span class="str">'react'</span>;
+
+<span class="kw">export default function</span> <span class="fn">App</span>() {
+  <span class="cmt">// Estado: contador empieza en 0</span>
+  <span class="kw">const</span> [contador, setContador] = <span class="fn">useState</span>(<span class="num">0</span>);
+
+  <span class="kw">return</span> (
+    <span class="brc">&lt;</span><span class="tag">div</span> <span class="attr">style</span>=<span class="brc">{{</span> textAlign: <span class="str">'center'</span>, padding: <span class="str">'2rem'</span> <span class="brc">}}&gt;</span>
+      <span class="brc">&lt;</span><span class="tag">h1</span><span class="brc">&gt;</span>Contador: <span class="brc">{</span>contador<span class="brc">}&lt;/</span><span class="tag">h1</span><span class="brc">&gt;</span>
+
+      <span class="brc">&lt;</span><span class="tag">button</span> <span class="attr">onClick</span>=<span class="brc">{</span>() => <span class="fn">setContador</span>(contador + <span class="num">1</span>)<span class="brc">}&gt;</span>
+        + Sumar
+      <span class="brc">&lt;/</span><span class="tag">button</span><span class="brc">&gt;</span>
+
+      <span class="brc">&lt;</span><span class="tag">button</span> <span class="attr">onClick</span>=<span class="brc">{</span>() => <span class="fn">setContador</span>(contador - <span class="num">1</span>)<span class="brc">}&gt;</span>
+        - Restar
+      <span class="brc">&lt;/</span><span class="tag">button</span><span class="brc">&gt;</span>
+
+      <span class="brc">&lt;</span><span class="tag">button</span> <span class="attr">onClick</span>=<span class="brc">{</span>() => <span class="fn">setContador</span>(<span class="num">0</span>)<span class="brc">}&gt;</span>
+        Reset
+      <span class="brc">&lt;/</span><span class="tag">button</span><span class="brc">&gt;</span>
+    <span class="brc">&lt;/</span><span class="tag">div</span><span class="brc">&gt;</span>
+  );
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SLIDE 16 — CÓMO FUNCIONA RE-RENDER -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="slide" id="s16">
+    <div class="slide-tag">Fase 3 · Cómo funciona</div>
+    <h2>¿Qué pasa cuando cambia el estado?</h2>
+    <p style="margin: 0.5rem 0 1.5rem;">Es importante entender el ciclo que ocurre cada vez que el usuario hace algo:</p>
+
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+      <div class="concept-card" style="text-align: center; border-color: rgba(97,218,251,0.4);">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem;">👆</div>
+        <h3 style="font-size: 0.9rem; color: var(--accent);">1. Evento</h3>
+        <p>El usuario hace clic en un botón</p>
+      </div>
+      <div class="concept-card" style="text-align: center;">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚡</div>
+        <h3 style="font-size: 0.9rem; color: var(--accent2);">2. setState()</h3>
+        <p>Se llama la función setter con el nuevo valor</p>
+      </div>
+      <div class="concept-card" style="text-align: center;">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔄</div>
+        <h3 style="font-size: 0.9rem; color: var(--accent4);">3. Re-render</h3>
+        <p>React vuelve a ejecutar la función del componente</p>
+      </div>
+      <div class="concept-card" style="text-align: center; border-color: rgba(168,255,120,0.4);">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🖥</div>
+        <h3 style="font-size: 0.9rem; color: var(--accent4);">4. UI actualizada</h3>
+        <p>El DOM se actualiza solo con los cambios mínimos</p>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <div class="box-label">💡 Virtual DOM — por qué React es eficiente</div>
+      <p>React no actualiza todo el HTML cada vez. Mantiene una copia virtual del DOM en memoria, compara qué cambió (diffing) y solo actualiza las partes que cambiaron. Esto lo hace muy rápido incluso con datos complejos.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SLIDE 17 — FORMULARIOS -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="slide" id="s17">
+    <div class="slide-tag">Fase 3 · Formularios</div>
+    <h2>Formularios e inputs controlados</h2>
+    <p style="margin: 0.5rem 0 1rem;">En React, los inputs del formulario deben estar sincronizados con el estado. A esto se le llama <strong style="color:var(--accent)">componente controlado</strong>.</p>
+
+    <div class="split">
+      <div class="split-left">
+        <div class="info-box">
+          <div class="box-label">📌 ¿Qué es un input controlado?</div>
+          <p>El <code>value</code> del input viene del estado de React. El estado es la "fuente de verdad". Cada vez que el usuario escribe, <code>onChange</code> actualiza el estado, que actualiza el input.</p>
+        </div>
+        <div class="concept-card" style="margin-top: 0.8rem;">
+          <h3>Flujo del input controlado</h3>
+          <pre style="font-family:var(--mono);font-size:0.78rem;line-height:1.8;color:var(--text2);margin-top:0.4rem">
+Usuario escribe "A"
+   ↓
+onChange dispara: setTexto("A")
+   ↓
+Estado: texto = "A"
+   ↓
+Input muestra: value="A"
+          </pre>
+        </div>
+      </div>
+      <div class="split-right">
+        <div class="code-wrap" style="flex: 1;">
+          <div class="code-header"><div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div><span class="code-filename">src/App.jsx</span></div>
+          <pre><span class="kw">import</span> { useState } <span class="fn">from</span> <span class="str">'react'</span>;
+
+<span class="kw">export default function</span> <span class="fn">App</span>() {
+  <span class="kw">const</span> [nombre, setNombre] = <span class="fn">useState</span>(<span class="str">''</span>);
+
+  <span class="kw">return</span> (
+    <span class="brc">&lt;</span><span class="tag">div</span><span class="brc">&gt;</span>
+      <span class="cmt">// El input está CONTROLADO por el estado</span>
+      <span class="brc">&lt;</span><span class="tag">input</span>
+        <span class="attr">value</span>=<span class="brc">{</span>nombre<span class="brc">}</span>
+        <span class="attr">onChange</span>=<span class="brc">{</span>e => <span class="fn">setNombre</span>(e.target.value)<span class="brc">}</span>
+        <span class="attr">placeholder</span>=<span class="str">"Escribí tu nombre"</span>
+      <span class="brc">/&gt;</span>
+
+      <span class="cmt">// Se actualiza EN TIEMPO REAL</span>
+      <span class="brc">&lt;</span><span class="tag">p</span><span class="brc">&gt;</span>
+        {nombre ? <span class="str">`Hola, ${nombre}!`</span> : <span class="str">'Esperando...'</span>}
+      <span class="brc">&lt;/</span><span class="tag">p</span><span class="brc">&gt;</span>
+    <span class="brc">&lt;/</span><span class="tag">div</span><span class="brc">&gt;</span>
+  );
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SLIDE 18 — SECCIÓN FASE 4 -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="slide" id="s18">
+    <div class="slide-tag">Fase 4 · 1:35 – 2:00</div>
+    <div class="section-intro" style="background: linear-gradient(135deg, rgba(168,255,120,0.05) 0%, transparent 60%);">
+      <div class="section-phase">Integramos todo</div>
+      <div class="big-accent"><span class="hl3">Mini-proyecto:</span><br>Lista de Tareas</div>
+      <p style="max-width: 480px; font-size: 1.05rem;">Vamos a construir una app funcional que combina componentes, props, estado, formularios y listas — todo lo que aprendiste hoy.</p>
+      <p style="margin-top: 1rem; font-size: 0.9rem;">⏱ Duración estimada: <strong style="color:var(--accent4)">25 minutos</strong></p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SLIDE 19 — TODO LIST CÓDIGO -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="slide" id="s19">
+    <div class="slide-tag">Fase 4 · Código base</div>
+    <h2>Lista de Tareas — Código completo</h2>
+    <p style="margin: 0.5rem 0 1rem;">Reemplazá todo el contenido de <code>src/App.jsx</code> con este código. Leé cada comentario:</p>
+
+    <div class="code-wrap code-scroll" style="flex: 1;">
+      <div class="code-header"><div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div><span class="code-filename">src/App.jsx — Lista de Tareas completa</span></div>
+      <pre><span class="kw">import</span> { useState } <span class="fn">from</span> <span class="str">'react'</span>;
+
+<span class="kw">export default function</span> <span class="fn">App</span>() {
+  <span class="cmt">// Estado 1: la lista de tareas (array vacío al inicio)</span>
+  <span class="kw">const</span> [tareas, setTareas] = <span class="fn">useState</span>([]);
+
+  <span class="cmt">// Estado 2: el texto del input</span>
+  <span class="kw">const</span> [nueva, setNueva] = <span class="fn">useState</span>(<span class="str">''</span>);
+
+  <span class="cmt">// Función para agregar una tarea</span>
+  <span class="kw">const</span> <span class="fn">agregarTarea</span> = () => {
+    <span class="kw">if</span> (!nueva.trim()) <span class="kw">return</span>; <span class="cmt">// no agregar si está vacío</span>
+    setTareas([...tareas, { id: Date.now(), texto: nueva }]);
+    setNueva(<span class="str">''</span>); <span class="cmt">// limpiar el input</span>
+  };
+
+  <span class="cmt">// Función para eliminar una tarea por id</span>
+  <span class="kw">const</span> <span class="fn">eliminar</span> = (id) => {
+    setTareas(tareas.<span class="fn">filter</span>(t => t.id !== id));
+  };
+
+  <span class="kw">return</span> (
+    <span class="brc">&lt;</span><span class="tag">div</span> <span class="attr">style</span>=<span class="brc">{{</span> maxWidth: <span class="str">'400px'</span>, margin: <span class="str">'2rem auto'</span> <span class="brc">}}&gt;</span>
+      <span class="brc">&lt;</span><span class="tag">h1</span><span class="brc">&gt;</span>📝 Mis Tareas<span class="brc">&lt;/</span><span class="tag">h1</span><span class="brc">&gt;</span>
+
+      <span class="cmt">// Input + botón para agregar</span>
+      <span class="brc">&lt;</span><span class="tag">div</span><span class="brc">&gt;</span>
+        <span class="brc">&lt;</span><span class="tag">input</span>
+          <span class="attr">value</span>=<span class="brc">{</span>nueva<span class="brc">}</span>
+          <span class="attr">onChange</span>=<span class="brc">{</span>e => <span class="fn">setNueva</span>(e.target.value)<span class="brc">}</span>
+          <span class="attr">placeholder</span>=<span class="str">"Nueva tarea..."</span>
+          <span class="attr">onKeyDown</span>=<span class="brc">{</span>e => e.key === <span class="str">'Enter'</span> && <span class="fn">agregarTarea</span>()<span class="brc">}</span>
+        <span class="brc">/&gt;</span>
+        <span class="brc">&lt;</span><span class="tag">button</span> <span class="attr">onClick</span>=<span class="brc">{</span>agregarTarea<span class="brc">}&gt;</span>Agregar<span class="brc">&lt;/</span><span class="tag">button</span><span class="brc">&gt;</span>
+      <span class="brc">&lt;/</span><span class="tag">div</span><span class="brc">&gt;</span>
+
+      <span class="cmt">// Lista de tareas</span>
+      <span class="brc">&lt;</span><span class="tag">ul</span><span class="brc">&gt;</span>
+        {tareas.<span class="fn">map</span>(tarea => (
+          <span class="brc">&lt;</span><span class="tag">li</span> <span class="attr">key</span>=<span class="brc">{</span>tarea.id<span class="brc">}&gt;</span>
+            {tarea.texto}
+            <span class="brc">&lt;</span><span class="tag">button</span> <span class="attr">onClick</span>=<span class="brc">{</span>() => <span class="fn">eliminar</span>(tarea.id)<span class="brc">}&gt;</span>
+              Eliminar
+            <span class="brc">&lt;/</span><span class="tag">button</span><span class="brc">&gt;</span>
+          <span class="brc">&lt;/</span><span class="tag">li</span><span class="brc">&gt;</span>
+        ))}
+      <span class="brc">&lt;/</span><span class="tag">ul</span><span class="brc">&gt;</span>
+
+      <span class="cmt">// Contador de tareas</span>
+      <span class="brc">&lt;</span><span class="tag">p</span><span class="brc">&gt;</span>Total: <span class="brc">{</span>tareas.length<span class="brc">}</span> tareas<span class="brc">&lt;/</span><span class="tag">p</span><span class="brc">&gt;</span>
+    <span class="brc">&lt;/</span><span class="tag">div</span><span class="brc">&gt;</span>
+  );
+}</pre>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SLIDE 20 — DESAFÍOS -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="slide" id="s20">
+    <div class="slide-tag">Fase 4 · Desafíos</div>
+    <div class="challenge-num">3</div>
+    <h2>Desafíos para completar</h2>
+    <p style="margin: 0.5rem 0 1.5rem;">Extendé la app que creaste. Si terminás uno, pasá al siguiente.</p>
+
+    <ul class="step-list">
+      <li class="step-item">
+        <span class="step-num" style="background:rgba(97,218,251,0.1);border-color:var(--accent);color:var(--accent);">A</span>
+        <span class="step-text">
+          <strong>Marcar como completada:</strong> Agregá un <code>completada: false</code> al objeto de tarea. Al hacer clic en ella, cambiá ese valor. Si está completada, mostrala con texto tachado (<code>text-decoration: 'line-through'</code>).
+        </span>
+      </li>
+      <li class="step-item">
+        <span class="step-num" style="background:rgba(247,223,30,0.1);border-color:var(--accent2);color:var(--accent2);">B</span>
+        <span class="step-text">
+          <strong>Filtrar tareas:</strong> Agregá botones "Todas", "Pendientes", "Completadas". Guardá el filtro activo en un estado y usá <code>.filter()</code> para mostrar solo las correspondientes.
+        </span>
+      </li>
+      <li class="step-item">
+        <span class="step-num" style="background:rgba(168,255,120,0.1);border-color:var(--accent4);color:var(--accent4);">C</span>
+        <span class="step-text">
+          <strong>Persistir datos:</strong> Investigá el hook <code>useEffect</code>. Úsalo para guardar las tareas en <code>localStorage</code> cada vez que cambien, y cargarlas al iniciar la app.
+        </span>
+      </li>
+    </ul>
+
+    <div class="success-box" style="margin-top: 1.5rem;">
+      <div class="box-label">🎯 Objetivo del laboratorio</div>
+      <p>No importa si no terminás todos los desafíos hoy. Lo importante es entender el flujo: <strong style="color:var(--text)">estado cambia → React re-renderiza → UI se actualiza</strong>. Ese es el corazón de React.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SLIDE 21 — CONCEPTOS APRENDIDOS -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="slide" id="s21">
+    <div class="slide-tag">Resumen</div>
+    <h2>¿Qué aprendiste hoy?</h2>
+    <p style="margin: 0.5rem 0 1.5rem;">En 2 horas cubriste los fundamentos que usan los devs de React todos los días:</p>
+
+    <div class="grid-3">
+      <div class="concept-card" style="border-color: rgba(97,218,251,0.3);">
+        <div class="icon">⚙️</div>
+        <h3 style="color:var(--accent)">Entorno</h3>
+        <p><strong style="color:var(--text)">Node.js + Vite:</strong> el setup moderno para proyectos React. <code>npm run dev</code> para desarrollar.</p>
+      </div>
+      <div class="concept-card" style="border-color: rgba(247,223,30,0.3);">
+        <div class="icon">🧩</div>
+        <h3 style="color:var(--accent2)">Componentes</h3>
+        <p>Funciones que devuelven JSX. Reciben <strong style="color:var(--text)">props</strong> de su padre y son reutilizables.</p>
+      </div>
+      <div class="concept-card" style="border-color: rgba(168,255,120,0.3);">
+        <div class="icon">⚡</div>
+        <h3 style="color:var(--accent4)">Estado</h3>
+        <p><strong style="color:var(--text)">useState</strong>: datos que cambian con el tiempo. Cuando cambia, React re-renderiza la UI.</p>
+      </div>
+      <div class="concept-card">
+        <div class="icon">📝</div>
+        <h3>JSX</h3>
+        <p>HTML dentro de JavaScript. Usar <code>{ }</code> para expresiones JS. <code>className</code> en vez de <code>class</code>.</p>
+      </div>
+      <div class="concept-card">
+        <div class="icon">🔁</div>
+        <h3>Listas</h3>
+        <p><code>.map()</code> para renderizar arrays. Siempre agregar la prop <code>key</code> única a cada elemento.</p>
+      </div>
+      <div class="concept-card">
+        <div class="icon">🎮</div>
+        <h3>Eventos</h3>
+        <p><code>onClick</code>, <code>onChange</code>, <code>onKeyDown</code> para reaccionar a acciones del usuario.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SLIDE 22 — QUÉ SIGUE -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="slide" id="s22">
+    <div class="slide-tag">Para seguir aprendiendo</div>
+    <h2>¿Qué estudiar después?</h2>
+    <p style="margin: 0.5rem 0 1.5rem;">Estos son los próximos temas en el orden que te recomendamos explorar:</p>
+
+    <div class="grid-2" style="gap: 1rem;">
+      <div>
+        <ul class="step-list">
+          <li class="step-item">
+            <span class="step-num">1</span>
+            <span class="step-text"><strong>useEffect</strong> — ejecutar código cuando cambian los datos (llamadas a APIs, timers, localStorage)</span>
+          </li>
+          <li class="step-item">
+            <span class="step-num">2</span>
+            <span class="step-text"><strong>React Router</strong> — navegar entre páginas sin recargar el navegador</span>
+          </li>
+          <li class="step-item">
+            <span class="step-num">3</span>
+            <span class="step-text"><strong>Fetch / Axios</strong> — consumir APIs REST y mostrar datos reales</span>
+          </li>
+          <li class="step-item">
+            <span class="step-num">4</span>
+            <span class="step-text"><strong>Context API</strong> — compartir estado entre componentes sin pasar props por todas partes</span>
+          </li>
+        </ul>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+        <div class="info-box">
+          <div class="box-label">📚 Documentación oficial</div>
+          <p><code>react.dev</code> — La documentación oficial tiene tutoriales interactivos excelentes. Está en inglés pero es la fuente más confiable.</p>
+        </div>
+        <div class="warn-box">
+          <div class="box-label">💡 Consejo final</div>
+          <p>La mejor forma de aprender React es <strong style="color:var(--text)">construyendo proyectos propios</strong>. Empezá con algo pequeño que te sirva a vos o a alguien que conocés.</p>
+        </div>
+        <div class="concept-card">
+          <h3>Ideas de proyectos para practicar</h3>
+          <p>App del clima, galería de fotos con API, calculadora, cronómetro, lista de películas favoritas, calculadora de notas de la facultad.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- SLIDE 23 — CIERRE -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="slide title-slide" id="s23">
+    <div class="slide-tag">Fin del laboratorio</div>
+    <div class="react-logo">⚛</div>
+    <h1>¡Buen trabajo! 🎉</h1>
+    <p style="margin-top: 1rem; max-width: 500px; font-size: 1.1rem;">
+      Hoy instalaste un entorno real de desarrollo, entendiste los conceptos fundamentales de React y construiste tu primera app funcional.
+    </p>
+    <p style="margin-top: 0.8rem; max-width: 500px; color: var(--text2);">
+      Esto es solo el comienzo — React tiene un ecosistema enorme para explorar. Seguí construyendo cosas.
+    </p>
+    <div class="title-meta">
+      <span class="meta-badge blue">react.dev</span>
+      <span class="meta-badge yellow">vitejs.dev</span>
+      <span class="meta-badge green">developer.mozilla.org</span>
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<!-- ── NAVIGATION ── -->
+<div class="nav">
+  <button class="nav-btn" id="prevBtn" onclick="prevSlide()">← Anterior</button>
+  <div class="progress-dots" id="dots"></div>
+  <span class="slide-counter" id="counter">1 / 23</span>
+  <button class="nav-btn" id="nextBtn" onclick="nextSlide()">Siguiente →</button>
+</div>
+
+<script>
+  const TOTAL = 23;
+  let current = 1;
+
+  const dotsEl = document.getElementById('dots');
+  for (let i = 1; i <= TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 1 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  }
+
+  function goTo(n) {
+    if (n < 1 || n > TOTAL) return;
+    const prev = document.getElementById('s' + current);
+    prev.classList.remove('active');
+    current = n;
+    const next = document.getElementById('s' + current);
+    next.style.display = 'flex';
+    next.offsetHeight;
+    next.classList.add('active');
+    document.getElementById('counter').textContent = current + ' / ' + TOTAL;
+    document.querySelectorAll('.dot').forEach((d, i) => {
+      d.classList.toggle('active', i + 1 === current);
+    });
+  }
+
+  function nextSlide() { goTo(current + 1); }
+  function prevSlide() { goTo(current - 1); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+
+  // Touch support
+  let touchX = 0;
+  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) { dx < 0 ? nextSlide() : prevSlide(); }
+  });
+</script>
+</body>
+</html>
