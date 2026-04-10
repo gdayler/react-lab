@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POO en PHP + Laravel — Laboratorio</title>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:    #0d1117;
+    --bg2:   #161b22;
+    --bg3:   #1c2128;
+    --bg4:   #21262d;
+    --acc:   #7c3aed;
+    --acc2:  #f59e0b;
+    --acc3:  #10b981;
+    --acc4:  #ef4444;
+    --acc5:  #3b82f6;
+    --text:  #e6edf3;
+    --text2: #8b949e;
+    --text3: #484f58;
+    --border:#30363d;
+    --mono:  'Fira Code', monospace;
+    --sans:  'Outfit', sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:var(--sans);background:var(--bg);color:var(--text);height:100vh;overflow:hidden;user-select:none;}
+
+  /* DECK */
+  .deck{width:100%;height:100vh;position:relative;}
+  .slide{position:absolute;inset:0;display:none;flex-direction:column;padding:2.5rem 3.5rem;opacity:0;transform:translateX(30px);transition:opacity .3s,transform .3s;}
+  .slide.active{display:flex;opacity:1;transform:translateX(0);}
+
+  /* NAV */
+  .nav{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:1rem;background:rgba(22,27,34,.96);border:1px solid var(--border);border-radius:50px;padding:.5rem 1.2rem;z-index:100;backdrop-filter:blur(12px);}
+  .nbtn{background:none;border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:12px;padding:.35rem 1rem;border-radius:30px;cursor:pointer;transition:all .2s;}
+  .nbtn:hover{background:var(--acc);border-color:var(--acc);color:#fff;}
+  .counter{font-family:var(--mono);font-size:11px;color:var(--text2);min-width:52px;text-align:center;}
+  .dots{display:flex;gap:4px;}
+  .dot{width:5px;height:5px;border-radius:50%;background:var(--border);cursor:pointer;transition:all .2s;}
+  .dot.active{background:var(--acc);transform:scale(1.5);}
+
+  .keyhint{position:fixed;top:1rem;right:1.5rem;font-family:var(--mono);font-size:10px;color:var(--text3);}
+
+  /* SLIDE TAG */
+  .stag{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;}
+  .stag::before{content:'';width:20px;height:1px;background:var(--acc);display:inline-block;}
+
+  /* TYPOGRAPHY */
+  h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:800;line-height:1.1;}
+  h2{font-size:clamp(1.4rem,3vw,2.2rem);font-weight:700;line-height:1.2;}
+  h3{font-size:1.1rem;font-weight:600;}
+  p{font-size:.98rem;line-height:1.7;color:var(--text2);}
+  code{font-family:var(--mono);font-size:.82em;background:rgba(124,58,237,.15);color:#a78bfa;padding:2px 6px;border-radius:4px;}
+
+  /* CODE BLOCKS */
+  .cw{background:#0a0c10;border:1px solid var(--border);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;}
+  .ch{display:flex;align-items:center;gap:5px;padding:.55rem .9rem;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);}
+  .dr{width:9px;height:9px;border-radius:50%;}
+  .cfn{font-family:var(--mono);font-size:10px;color:var(--text2);margin-left:.4rem;}
+  pre{padding:1rem 1.2rem;font-family:var(--mono);font-size:.82rem;line-height:1.85;overflow-x:auto;white-space:pre;flex:1;}
+
+  /* SYNTAX */
+  .kw{color:#c792ea;}.fn{color:#82aaff;}.str{color:#c3e88d;}.cmt{color:#4a5568;font-style:italic;}.num{color:#f78c6c;}.tag{color:#f07178;}.attr{color:#ffcb6b;}.cls{color:#ffcb6b;font-weight:500;}.op{color:#89ddff;}
+
+  /* BOXES */
+  .ibox{background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.25);border-left:3px solid var(--acc);border-radius:0 8px 8px 0;padding:.9rem 1.1rem;}
+  .wbox{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-left:3px solid var(--acc2);border-radius:0 8px 8px 0;padding:.9rem 1.1rem;}
+  .sbox{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-left:3px solid var(--acc3);border-radius:0 8px 8px 0;padding:.9rem 1.1rem;}
+  .ebox{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-left:3px solid var(--acc4);border-radius:0 8px 8px 0;padding:.9rem 1.1rem;}
+  .blabel{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.35rem;}
+  .ibox .blabel{color:var(--acc);} .wbox .blabel{color:var(--acc2);} .sbox .blabel{color:var(--acc3);} .ebox .blabel{color:var(--acc4);}
+  .ibox p,.wbox p,.sbox p,.ebox p{font-size:.88rem;color:var(--text);}
+
+  /* GRID */
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;}
+  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;}
+
+  /* CARDS */
+  .card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:1.1rem;}
+  .card .icon{font-size:1.8rem;margin-bottom:.5rem;}
+  .card h3{font-size:.95rem;margin-bottom:.35rem;}
+  .card p{font-size:.83rem;color:var(--text2);line-height:1.55;}
+
+  /* STEP LIST */
+  .sl{list-style:none;display:flex;flex-direction:column;gap:.8rem;}
+  .si{display:flex;gap:.9rem;align-items:flex-start;}
+  .sn{width:24px;height:24px;border-radius:50%;background:rgba(124,58,237,.15);border:1px solid var(--acc);color:var(--acc);font-family:var(--mono);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .st{font-size:.9rem;color:var(--text2);line-height:1.6;padding-top:2px;}
+  .st strong{color:var(--text);}
+
+  /* TITLE SLIDE */
+  .tslide{justify-content:center;overflow:hidden;position:relative;}
+  .tslide::before{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.1) 0%,transparent 70%);right:-80px;top:-80px;pointer-events:none;}
+
+  /* BADGE */
+  .badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;padding:4px 12px;border-radius:30px;border:1px solid;}
+  .badge.purple{border-color:var(--acc);color:var(--acc);background:rgba(124,58,237,.08);}
+  .badge.amber{border-color:var(--acc2);color:var(--acc2);background:rgba(245,158,11,.08);}
+  .badge.green{border-color:var(--acc3);color:var(--acc3);background:rgba(16,185,129,.08);}
+  .badge.blue{border-color:var(--acc5);color:var(--acc5);background:rgba(59,130,246,.08);}
+
+  /* SPLIT */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:1.8rem;flex:1;min-height:0;}
+  .scol{display:flex;flex-direction:column;gap:1rem;justify-content:center;}
+  .scol2{display:flex;flex-direction:column;min-height:0;}
+
+  /* SECTION INTRO */
+  .sintro{background:linear-gradient(135deg,rgba(124,58,237,.06) 0%,transparent 60%);border:1px solid var(--border);border-radius:14px;padding:2.2rem;flex:1;display:flex;flex-direction:column;justify-content:center;}
+  .sphase{font-family:var(--mono);font-size:11px;color:var(--acc);letter-spacing:.12em;text-transform:uppercase;margin-bottom:.8rem;}
+  .bacc{font-size:clamp(2.5rem,7vw,5rem);font-weight:800;line-height:1;margin-bottom:.8rem;}
+
+  /* SCROLL */
+  .cscroll pre{max-height:calc(100vh - 260px);overflow-y:auto;}
+  .cscroll pre::-webkit-scrollbar{width:4px;}
+  .cscroll pre::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+
+  /* TABLE */
+  .tbl{width:100%;border-collapse:collapse;font-size:.83rem;}
+  .tbl th{font-family:var(--mono);font-size:.75rem;font-weight:500;color:var(--text2);text-align:left;padding:.5rem .8rem;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.06em;}
+  .tbl td{padding:.5rem .8rem;border-bottom:1px solid rgba(48,54,61,.5);color:var(--text2);}
+  .tbl td:first-child{color:var(--text);font-weight:500;}
+  .tbl tr:last-child td{border-bottom:none;}
+
+  /* ER DIAGRAM STYLES */
+  .er-table{background:var(--bg3);border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:.78rem;}
+  .er-head{background:var(--acc);padding:.4rem .8rem;font-family:var(--mono);font-size:.8rem;font-weight:700;color:#fff;}
+  .er-head.amber{background:var(--acc2);}
+  .er-head.green{background:var(--acc3);}
+  .er-head.blue{background:var(--acc5);}
+  .er-head.red{background:var(--acc4);}
+  .er-row{padding:.3rem .8rem;border-bottom:1px solid rgba(48,54,61,.4);display:flex;gap:.5rem;align-items:center;}
+  .er-row:last-child{border-bottom:none;}
+  .er-pk{font-family:var(--mono);font-size:.7rem;color:var(--acc2);font-weight:700;}
+  .er-fk{font-family:var(--mono);font-size:.7rem;color:var(--acc3);}
+  .er-field{font-family:var(--mono);font-size:.75rem;color:var(--text);}
+  .er-type{font-family:var(--mono);font-size:.68rem;color:var(--text3);}
+
+  /* CHALLENGE */
+  .cnum{font-family:var(--mono);font-size:7rem;font-weight:800;color:rgba(124,58,237,.07);position:absolute;right:2.5rem;top:1.5rem;line-height:1;pointer-events:none;}
+
+  /* TIMELINE */
+  .tl{display:flex;flex-direction:column;}
+  .tli{display:grid;grid-template-columns:80px 36px 1fr;align-items:start;}
+  .tlt{font-family:var(--mono);font-size:11px;color:var(--acc);text-align:right;padding-right:.8rem;padding-top:3px;}
+  .tlm{display:flex;flex-direction:column;align-items:center;}
+  .tld{width:11px;height:11px;border-radius:50%;background:var(--acc);border:2px solid var(--bg);box-shadow:0 0 0 2px var(--acc);flex-shrink:0;margin-top:4px;}
+  .tll{width:1px;flex:1;background:var(--border);min-height:32px;}
+  .tlc{padding:0 0 1.2rem 1rem;}
+  .tlc h3{font-size:.9rem;color:var(--text);margin-bottom:.15rem;}
+  .tlc p{font-size:.8rem;color:var(--text2);}
+
+  /* COMPARE */
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+  .cmpb{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:.9rem;}
+  .cmpl{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem;}
+  .cmpb.bad .cmpl{color:var(--acc4);}
+  .cmpb.good .cmpl{color:var(--acc3);}
+  .cmpb pre{font-size:.78rem;padding:0;line-height:1.8;}
+
+  /* HL */
+  .hl{color:var(--acc);}
+  .hl2{color:var(--acc2);}
+  .hl3{color:var(--acc3);}
+  .hl5{color:var(--acc5);}
+
+  /* LOGO */
+  .php-logo{font-family:var(--mono);font-size:4.5rem;font-weight:700;color:var(--acc);line-height:1;margin-bottom:1.2rem;letter-spacing:-.05em;}
+</style>
+</head>
+<body>
+
+<div class="keyhint">← → · Espacio</div>
+
+<div class="deck" id="deck">
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 01 — PORTADA -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide active tslide" id="s1">
+  <div class="stag">Laboratorio · 2 horas</div>
+  <div class="php-logo">&lt;PHP/&gt;</div>
+  <h1>Programación Orientada<br>a Objetos con <span class="hl">PHP + Laravel</span></h1>
+  <p style="margin-top:1rem;max-width:540px;">Aprenderás los fundamentos de POO aplicados directamente al reto: un sistema de <strong style="color:var(--text)">cursos online y ventas</strong>. Todo el código es listo para usar.</p>
+  <div style="display:flex;gap:.8rem;margin-top:1.8rem;flex-wrap:wrap;">
+    <span class="badge purple">⏱ 2 horas</span>
+    <span class="badge amber">🛠 XAMPP + Laravel</span>
+    <span class="badge green">💻 VS Code</span>
+    <span class="badge blue">🎯 Reto ABR</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 02 — AGENDA -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide" id="s2">
+  <div class="stag">Plan del laboratorio</div>
+  <h2>¿Qué haremos en 2 horas?</h2>
+  <p style="margin:.5rem 0 1.5rem;">4 bloques progresivos. Cada uno construye sobre el anterior.</p>
+  <div class="tl">
+    <div class="tli">
+      <div class="tlt">0:00–0:25</div>
+      <div class="tlm"><div class="tld"></div><div class="tll"></div></div>
+      <div class="tlc"><h3>🧠 Bloque 1 — POO en PHP</h3><p>Clases, objetos, propiedades, métodos, herencia, encapsulamiento.</p></div>
+    </div>
+    <div class="tli">
+      <div class="tlt">0:25–0:50</div>
+      <div class="tlm"><div class="tld"></div><div class="tll"></div></div>
+      <div class="tlc"><h3>🗄️ Bloque 2 — Base de Datos E/R</h3><p>Diseño del modelo relacional del sistema de cursos y ventas.</p></div>
+    </div>
+    <div class="tli">
+      <div class="tlt">0:50–1:40</div>
+      <div class="tlm"><div class="tld"></div><div class="tll"></div></div>
+      <div class="tlc"><h3>⚡ Bloque 3 — Modelos y Migraciones en Laravel</h3><p>Crear modelos, migraciones, relaciones Eloquent. Código paso a paso.</p></div>
+    </div>
+    <div class="tli">
+      <div class="tlt">1:40–2:00</div>
+      <div class="tlm"><div class="tld" style="background:var(--acc2);box-shadow:0 0 0 2px var(--acc2)"></div><div class="tll" style="background:transparent"></div></div>
+      <div class="tlc"><h3>🚀 Bloque 4 — Reto ABR</h3><p>Consigna del proyecto. Cada grupo define qué va a construir.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 03 — VERIFICAR ENTORNO -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide" id="s3">
+  <div class="stag">Antes de empezar</div>
+  <h2>Verificar que todo funciona</h2>
+  <p style="margin:.5rem 0 1.2rem;">Antes de escribir una sola línea de código, verificá que el entorno esté listo. Hacé esto en orden:</p>
+  <div class="split">
+    <div class="scol">
+      <ul class="sl">
+        <li class="si"><div class="sn">1</div><div class="st"><strong>Abrir XAMPP Control Panel</strong> y hacer clic en Start para <strong>Apache</strong> y <strong>MySQL</strong>. Los dos deben estar en verde.</div></li>
+        <li class="si"><div class="sn">2</div><div class="st">Abrir el navegador y entrar a <code>http://localhost</code> — debe aparecer la página de XAMPP.</div></li>
+        <li class="si"><div class="sn">3</div><div class="st">Abrir <strong>VS Code</strong>. Ir a Terminal → New Terminal.</div></li>
+        <li class="si"><div class="sn">4</div><div class="st">Verificar PHP en la terminal:</div></li>
+      </ul>
+      <div class="cw">
+        <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">terminal de VS Code</span></div>
+        <pre><span class="fn">php</span> --version
+<span class="cmt"># Resultado esperado: PHP 8.x.x</span>
+
+<span class="fn">php</span> artisan --version
+<span class="cmt"># Resultado esperado: Laravel Framework 10.x</span></pre>
+      </div>
+    </div>
+    <div class="scol">
+      <div class="wbox">
+        <div class="blabel">⚠️ Si artisan no funciona</div>
+        <p>Significa que no estás dentro de la carpeta del proyecto Laravel. Navegá primero al proyecto:</p>
+      </div>
+      <div class="cw" style="margin-top:.5rem;">
+        <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">terminal</span></div>
+        <pre><span class="cmt"># Ir a la carpeta del proyecto</span>
+<span class="fn">cd</span> C:\xampp\htdocs\mi-proyecto
+
+<span class="cmt"># Si el proyecto no existe aún, crearlo:</span>
+<span class="fn">composer</span> create-project laravel/laravel cursos-app
+<span class="fn">cd</span> cursos-app</pre>
+      </div>
+      <div class="sbox" style="margin-top:.8rem;">
+        <div class="blabel">✅ Cuando todo funcione</div>
+        <p>Verás los números de versión sin errores. Recién ahí continuamos.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 04 — SECCIÓN POO -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide" id="s4">
+  <div class="stag">Bloque 1 · 0:00 – 0:25</div>
+  <div class="sintro">
+    <div class="sphase">Empezamos aquí</div>
+    <div class="bacc"><span class="hl">Programación</span><br>Orientada a Objetos</div>
+    <p style="max-width:480px;font-size:1rem;">Antes de tocar Laravel, necesitamos entender POO. Es el paradigma en que se basa todo — clases, objetos, herencia, encapsulamiento.</p>
+    <p style="margin-top:.8rem;font-size:.88rem;">⏱ Duración: <strong style="color:var(--acc)">25 minutos</strong></p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 05 — QUÉ ES POO -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide" id="s5">
+  <div class="stag">Bloque 1 · Concepto</div>
+  <h2>¿Qué es la Programación Orientada a Objetos?</h2>
+  <div class="g3" style="margin:1rem 0 1.2rem;">
+    <div class="card">
+      <div class="icon">🏗️</div>
+      <h3>Clase</h3>
+      <p>Es el <strong style="color:var(--text)">molde o plano</strong>. Define qué propiedades y comportamientos tendrá un objeto. Ejemplo: la clase <code>Curso</code>.</p>
+    </div>
+    <div class="card">
+      <div class="icon">📦</div>
+      <h3>Objeto</h3>
+      <p>Es una <strong style="color:var(--text)">instancia</strong> de una clase. Cada curso concreto (PHP, React, Laravel) es un objeto de la clase <code>Curso</code>.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🔧</div>
+      <h3>Método</h3>
+      <p>Son las <strong style="color:var(--text)">funciones</strong> que puede hacer el objeto. Ejemplo: <code>inscribir()</code>, <code>calcularPrecio()</code>.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🔒</div>
+      <h3>Encapsulamiento</h3>
+      <p>Proteger los datos internos. Se usa <code>private</code> para que solo la propia clase pueda modificarlos directamente.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🧬</div>
+      <h3>Herencia</h3>
+      <p>Una clase puede <strong style="color:var(--text)">heredar</strong> propiedades y métodos de otra. <code>CursoGratuito</code> puede heredar de <code>Curso</code>.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🎭</div>
+      <h3>Polimorfismo</h3>
+      <p>Un método puede <strong style="color:var(--text)">comportarse diferente</strong> según la clase que lo implementa. <code>calcularPrecio()</code> en gratuito devuelve 0.</p>
+    </div>
+  </div>
+  <div class="ibox">
+    <div class="blabel">💡 La analogía</div>
+    <p>Pensá en un <strong>formulario de curso</strong>: el formulario en blanco es la <strong>clase</strong>. Cada curso que llenás con ese formulario es un <strong>objeto</strong>.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 06 — PRIMERA CLASE PHP -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide" id="s6">
+  <div class="stag">Bloque 1 · Código</div>
+  <h2>Tu primera clase en PHP</h2>
+  <p style="margin:.5rem 0 1rem;">Copiá esto y estudiá cada parte con el comentario:</p>
+  <div class="cw cscroll" style="flex:1;">
+    <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">Curso.php — tu primera clase</span></div>
+    <pre><span class="op">&lt;?php</span>
+
+<span class="cmt">// La palabra class define una nueva clase</span>
+<span class="kw">class</span> <span class="cls">Curso</span>
+{
+    <span class="cmt">// PROPIEDADES: los datos que guarda cada objeto</span>
+    <span class="kw">private</span> <span class="attr">string</span> $titulo;
+    <span class="kw">private</span> <span class="attr">string</span> $descripcion;
+    <span class="kw">private</span> <span class="attr">float</span>  $precio;
+    <span class="kw">private</span> <span class="attr">int</span>    $duracion_horas;
+
+    <span class="cmt">// CONSTRUCTOR: se ejecuta al crear el objeto</span>
+    <span class="kw">public function</span> <span class="fn">__construct</span>(
+        <span class="attr">string</span> $titulo,
+        <span class="attr">string</span> $descripcion,
+        <span class="attr">float</span>  $precio,
+        <span class="attr">int</span>    $duracion_horas
+    ) {
+        $<span class="kw">this</span>->titulo          = $titulo;
+        $<span class="kw">this</span>->descripcion     = $descripcion;
+        $<span class="kw">this</span>->precio          = $precio;
+        $<span class="kw">this</span>->duracion_horas  = $duracion_horas;
+    }
+
+    <span class="cmt">// MÉTODOS: lo que puede hacer el objeto</span>
+    <span class="kw">public function</span> <span class="fn">getTitulo</span>(): <span class="attr">string</span>
+    {
+        <span class="kw">return</span> $<span class="kw">this</span>->titulo;
+    }
+
+    <span class="kw">public function</span> <span class="fn">getPrecio</span>(): <span class="attr">float</span>
+    {
+        <span class="kw">return</span> $<span class="kw">this</span>->precio;
+    }
+
+    <span class="cmt">// Método que calcula precio con descuento</span>
+    <span class="kw">public function</span> <span class="fn">precioConDescuento</span>(<span class="attr">int</span> $porcentaje): <span class="attr">float</span>
+    {
+        <span class="kw">return</span> $<span class="kw">this</span>->precio * (<span class="num">1</span> - $porcentaje / <span class="num">100</span>);
+    }
+
+    <span class="cmt">// Método que imprime el resumen del curso</span>
+    <span class="kw">public function</span> <span class="fn">resumen</span>(): <span class="attr">string</span>
+    {
+        <span class="kw">return</span> <span class="str">"{$this->titulo} — Bs. {$this->precio} — {$this->duracion_horas}h"</span>;
+    }
+}
+
+<span class="cmt">// ── USAR LA CLASE ──────────────────────────────────</span>
+
+<span class="cmt">// Crear un objeto (instanciar la clase)</span>
+$curso1 = <span class="kw">new</span> <span class="cls">Curso</span>(
+    titulo:         <span class="str">'PHP para principiantes'</span>,
+    descripcion:    <span class="str">'Aprende PHP desde cero'</span>,
+    precio:         <span class="num">150.00</span>,
+    duracion_horas: <span class="num">20</span>
+);
+
+$curso2 = <span class="kw">new</span> <span class="cls">Curso</span>(<span class="str">'Laravel Avanzado'</span>, <span class="str">'Framework completo'</span>, <span class="num">300.00</span>, <span class="num">40</span>);
+
+<span class="cmt">// Llamar métodos del objeto</span>
+<span class="fn">echo</span> $curso1-><span class="fn">resumen</span>();
+<span class="cmt">// → PHP para principiantes — Bs. 150 — 20h</span>
+
+<span class="fn">echo</span> $curso1-><span class="fn">precioConDescuento</span>(<span class="num">20</span>);
+<span class="cmt">// → 120  (20% de descuento)</span></pre>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 07 — HERENCIA -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide" id="s7">
+  <div class="stag">Bloque 1 · Herencia</div>
+  <h2>Herencia — reutilizar código</h2>
+  <p style="margin:.5rem 0 1rem;">Una clase hija hereda todo de la clase padre y puede agregar o modificar comportamiento:</p>
+  <div class="split">
+    <div class="scol">
+      <div class="ibox">
+        <div class="blabel">📌 ¿Cuándo usar herencia?</div>
+        <p>Cuando dos clases comparten características pero una es un tipo especial de la otra. <strong>CursoGratuito</strong> ES UN <strong>Curso</strong>, pero con precio siempre en 0.</p>
+      </div>
+      <div class="wbox">
+        <div class="blabel">⚠️ Regla importante</div>
+        <p>Usá <code>parent::__construct()</code> para llamar al constructor de la clase padre. Sin eso, las propiedades heredadas no se inicializan.</p>
+      </div>
+      <div class="card">
+        <h3>La palabra clave <code>extends</code></h3>
+        <p style="margin-top:.3rem;">Indica que una clase hereda de otra. <code>class Hijo extends Padre</code></p>
+      </div>
+    </div>
+    <div class="scol2">
+      <div class="cw" style="flex:1;">
+        <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">CursoGratuito.php</span></div>
+        <pre><span class="op">&lt;?php</span>
+
+<span class="cmt">// Hereda TODAS las propiedades y métodos de Curso</span>
+<span class="kw">class</span> <span class="cls">CursoGratuito</span> <span class="kw">extends</span> <span class="cls">Curso</span>
+{
+    <span class="kw">private</span> <span class="attr">string</span> $patrocinador;
+
+    <span class="kw">public function</span> <span class="fn">__construct</span>(
+        <span class="attr">string</span> $titulo,
+        <span class="attr">string</span> $descripcion,
+        <span class="attr">int</span>    $duracion_horas,
+        <span class="attr">string</span> $patrocinador
+    ) {
+        <span class="cmt">// Llama al constructor del padre con precio = 0</span>
+        <span class="fn">parent</span>::<span class="fn">__construct</span>(
+            $titulo, $descripcion,
+            <span class="num">0.00</span>,   <span class="cmt">// precio siempre 0</span>
+            $duracion_horas
+        );
+        $<span class="kw">this</span>->patrocinador = $patrocinador;
+    }
+
+    <span class="cmt">// Sobreescribe el método del padre</span>
+    <span class="kw">public function</span> <span class="fn">resumen</span>(): <span class="attr">string</span>
+    {
+        <span class="kw">return</span> <span class="str">"{$this->getTitulo()} — GRATIS — Patrocina: {$this->patrocinador}"</span>;
+    }
+}
+
+<span class="cmt">// Uso</span>
+$gratis = <span class="kw">new</span> <span class="cls">CursoGratuito</span>(
+    <span class="str">'Git Básico'</span>, <span class="str">'Control de versiones'</span>,
+    <span class="num">5</span>, <span class="str">'Universidad'</span>
+);
+<span class="fn">echo</span> $gratis-><span class="fn">resumen</span>();
+<span class="cmt">// → Git Básico — GRATIS — Patrocina: Universidad</span></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 08 — INTERFACES Y ABSTRACT -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide" id="s8">
+  <div class="stag">Bloque 1 · Contratos</div>
+  <h2>Interface — el contrato</h2>
+  <p style="margin:.5rem 0 1rem;">Una interface define <strong style="color:var(--text)">qué métodos debe tener</strong> una clase, sin decir cómo los implementa. Es un contrato obligatorio.</p>
+  <div class="split">
+    <div class="scol">
+      <div class="ibox">
+        <div class="blabel">💡 ¿Por qué usar interfaces?</div>
+        <p>En el sistema de ventas, diferentes métodos de pago (tarjeta, QR, transferencia) deben tener todos el mismo método <code>procesar()</code>. La interface garantiza eso.</p>
+      </div>
+      <div class="g2" style="margin-top:.8rem;">
+        <div class="card"><h3 style="color:var(--acc3)">Interface</h3><p style="font-size:.8rem;">Define <em>qué</em> hay que hacer. No implementa nada. Se usa con <code>implements</code>.</p></div>
+        <div class="card"><h3 style="color:var(--acc2)">Abstract</h3><p style="font-size:.8rem;">Puede implementar algunos métodos y dejar otros incompletos. Se usa con <code>extends</code>.</p></div>
+      </div>
+    </div>
+    <div class="scol2">
+      <div class="cw" style="flex:1;">
+        <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">MetodoPago.php</span></div>
+        <pre><span class="op">&lt;?php</span>
+
+<span class="cmt">// Interface: contrato que deben cumplir</span>
+<span class="cmt">// todos los métodos de pago</span>
+<span class="kw">interface</span> <span class="cls">MetodoPago</span>
+{
+    <span class="kw">public function</span> <span class="fn">procesar</span>(<span class="attr">float</span> $monto): <span class="attr">bool</span>;
+    <span class="kw">public function</span> <span class="fn">getNombre</span>(): <span class="attr">string</span>;
+}
+
+<span class="cmt">// Clase que implementa la interface</span>
+<span class="kw">class</span> <span class="cls">PagoTarjeta</span> <span class="kw">implements</span> <span class="cls">MetodoPago</span>
+{
+    <span class="kw">public function</span> <span class="fn">procesar</span>(<span class="attr">float</span> $monto): <span class="attr">bool</span>
+    {
+        <span class="cmt">// Lógica de pago con tarjeta</span>
+        <span class="fn">echo</span> <span class="str">"Procesando Bs. {$monto} con tarjeta..."</span>;
+        <span class="kw">return</span> <span class="kw">true</span>;
+    }
+    <span class="kw">public function</span> <span class="fn">getNombre</span>(): <span class="attr">string</span>
+    {
+        <span class="kw">return</span> <span class="str">'Tarjeta de débito'</span>;
+    }
+}
+
+<span class="kw">class</span> <span class="cls">PagoQR</span> <span class="kw">implements</span> <span class="cls">MetodoPago</span>
+{
+    <span class="kw">public function</span> <span class="fn">procesar</span>(<span class="attr">float</span> $monto): <span class="attr">bool</span>
+    {
+        <span class="fn">echo</span> <span class="str">"Generando QR por Bs. {$monto}..."</span>;
+        <span class="kw">return</span> <span class="kw">true</span>;
+    }
+    <span class="kw">public function</span> <span class="fn">getNombre</span>(): <span class="attr">string</span>
+    {
+        <span class="kw">return</span> <span class="str">'Código QR'</span>;
+    }
+}</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 09 — SECCIÓN BASE DE DATOS -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide" id="s9">
+  <div class="stag">Bloque 2 · 0:25 – 0:50</div>
+  <div class="sintro" style="background:linear-gradient(135deg,rgba(245,158,11,.06) 0%,transparent 60%);">
+    <div class="sphase">Modelado de datos</div>
+    <div class="bacc"><span class="hl2">Base de Datos</span><br>Modelo E/R</div>
+    <p style="max-width:480px;font-size:1rem;">Antes de escribir código Laravel, necesitamos saber qué tablas vamos a crear y cómo se relacionan entre sí.</p>
+    <p style="margin-top:.8rem;font-size:.88rem;">⏱ Duración: <strong style="color:var(--acc2)">25 minutos</strong></p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 10 — DIAGRAMA E/R -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide" id="s10">
+  <div class="stag">Bloque 2 · Diagrama E/R</div>
+  <h2>Sistema de Cursos y Ventas — Modelo E/R</h2>
+  <p style="margin:.5rem 0 1rem;">Estas son las entidades y sus relaciones. Cada tabla se convertirá en un modelo de Laravel:</p>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:.8rem;margin-bottom:1rem;">
+    <div class="er-table">
+      <div class="er-head">usuarios</div>
+      <div class="er-row"><span class="er-pk">PK</span><span class="er-field">id</span><span class="er-type">bigint</span></div>
+      <div class="er-row"><span class="er-type" style="width:24px"></span><span class="er-field">nombre</span><span class="er-type">varchar</span></div>
+      <div class="er-row"><span class="er-type" style="width:24px"></span><span class="er-field">email</span><span class="er-type">varchar</span></div>
+      <div class="er-row"><span class="er-type" style="width:24px"></span><span class="er-field">password</span><span class="er-type">varchar</span></div>
+      <div class="er-row"><span class="er-type" style="width:24px"></span><span class="er-field">rol</span><span class="er-type">enum</span></div>
+      <div class="er-row"><span class="er-type" style="width:24px"></span><span class="er-field">created_at</span><span class="er-type">timestamp</span></div>
+    </div>
+    <div class="er-table">
+      <div class="er-head amber">cursos</div>
+      <div class="er-row"><span class="er-pk">PK</span><span class="er-field">id</span><span class="er-type">bigint</span></div>
+      <div class="er-row"><span class="er-fk">FK</span><span class="er-field">instructor_id</span><span class="er-type">bigint</span></div>
+      <div class="er-row"><span class="er-type" style="width:24px"></span><span class="er-field">titulo</span><span class="er-type">varchar</span></div>
+      <div class="er-row"><span class="er-type" style="width:24px"></span><span class="er-field">descripcion</span><span class="er-type">text</span></div>
+      <div class="er-row"><span class="er-type" style="width:24px"></span><span class="er-field">precio</span><span class="er-type">decimal</span></div>
+      <div class="er-row"><span class="er-type" style="width:24px"></span><span class="er-field">duracion_h</span><span class="er-type">int</span></div>
+    </div>
+    <div class="er-table">
+      <div class="er-head green">ventas</div>
+      <div class="er-row"><span class="er-pk">PK</span><span class="er-field">id</span><span class="er-type">bigint</span></div>
+      <div class="er-row"><span class="er-fk">FK</span><span class="er-field">usuario_id</span><span class="er-type">bigint</span></div>
+      <div class="er-row"><span class="er-fk">FK</span><span class="er-field">curso_id</span><span class="er-type">bigint</span></div>
+      <div class="er-row"><span class="er-type" style="width:24px"></span><span class="er-field">total</span><span class="er-type">decimal</span></div>
+      <div class="er-row"><span class="er-type" style="width:24px"></span><span class="er-field">estado</span><span class="er-type">enum</span></div>
+      <div class="er-row"><span class="er-type" style="width:24px"></span><span class="er-field">fecha</span><span class="er-type">timestamp</span></div>
+    </div>
+    <div class="er-table">
+      <div class="er-head blue">pagos</div>
+      <div class="er-row"><span class="er-pk">PK</span><span class="er-field">id</span><span class="er-type">bigint</span></div>
+      <div class="er-row"><span class="er-fk">FK</span><span class="er-field">venta_id</span><span class="er-type">bigint</span></div>
+      <div class="er-row"><span class="er-type" style="width:24px"></span><span class="er-field">metodo</span><span class="er-type">varchar</span></div>
+      <div class="er-row"><span class="er-type" style="width:24px"></span><span class="er-field">monto</span><span class="er-type">decimal</span></div>
+      <div class="er-row"><span class="er-type" style="width:24px"></span><span class="er-field">referencia</span><span class="er-type">varchar</span></div>
+      <div class="er-row"><span class="er-type" style="width:24px"></span><span class="er-field">confirmado</span><span class="er-type">boolean</span></div>
+    </div>
+    <div class="er-table">
+      <div class="er-head red">inscripciones</div>
+      <div class="er-row"><span class="er-pk">PK</span><span class="er-field">id</span><span class="er-type">bigint</span></div>
+      <div class="er-row"><span class="er-fk">FK</span><span class="er-field">usuario_id</span><span class="er-type">bigint</span></div>
+      <div class="er-row"><span class="er-fk">FK</span><span class="er-field">curso_id</span><span class="er-type">bigint</span></div>
+      <div class="er-row"><span class="er-type" style="width:24px"></span><span class="er-field">progreso</span><span class="er-type">int</span></div>
+      <div class="er-row"><span class="er-type" style="width:24px"></span><span class="er-field">completado</span><span class="er-type">boolean</span></div>
+      <div class="er-row"><span class="er-type" style="width:24px"></span><span class="er-field">fecha</span><span class="er-type">timestamp</span></div>
+    </div>
+  </div>
+  <div class="ibox">
+    <div class="blabel">🔗 Relaciones</div>
+    <p>Un <strong>usuario</strong> puede comprar muchos cursos (ventas). Un <strong>curso</strong> pertenece a un instructor (usuario). Una <strong>venta</strong> genera un <strong>pago</strong>. Una <strong>inscripción</strong> une usuario + curso tras pagar.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 11 — SECCIÓN LARAVEL -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide" id="s11">
+  <div class="stag">Bloque 3 · 0:50 – 1:40</div>
+  <div class="sintro" style="background:linear-gradient(135deg,rgba(16,185,129,.06) 0%,transparent 60%);">
+    <div class="sphase">Manos al código</div>
+    <div class="bacc"><span class="hl3">Modelos y</span><br>Migraciones</div>
+    <p style="max-width:480px;font-size:1rem;">Laravel usa Eloquent ORM — cada tabla de la base de datos se mapea a una clase PHP. Las migraciones crean las tablas automáticamente.</p>
+    <p style="margin-top:.8rem;font-size:.88rem;">⏱ Duración: <strong style="color:var(--acc3)">50 minutos</strong></p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 12 — CONFIGURAR BASE DE DATOS -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide" id="s12">
+  <div class="stag">Bloque 3 · Paso 1</div>
+  <h2>Configurar la base de datos</h2>
+  <p style="margin:.5rem 0 1rem;">Primero creamos la base de datos en XAMPP y conectamos Laravel:</p>
+  <div class="split">
+    <div class="scol">
+      <ul class="sl">
+        <li class="si"><div class="sn">1</div><div class="st">Abrí el navegador → <code>http://localhost/phpmyadmin</code></div></li>
+        <li class="si"><div class="sn">2</div><div class="st">Clic en <strong>Nueva</strong> (panel izquierdo) → nombre: <code>cursos_db</code> → cotejamiento: <code>utf8mb4_unicode_ci</code> → Crear</div></li>
+        <li class="si"><div class="sn">3</div><div class="st">En VS Code abrí el archivo <code>.env</code> que está en la raíz del proyecto Laravel y editá estas líneas:</div></li>
+      </ul>
+      <div class="cw">
+        <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">.env</span></div>
+        <pre>DB_CONNECTION=<span class="str">mysql</span>
+DB_HOST=<span class="str">127.0.0.1</span>
+DB_PORT=<span class="str">3306</span>
+DB_DATABASE=<span class="str">cursos_db</span>
+DB_USERNAME=<span class="str">root</span>
+DB_PASSWORD=<span class="str"></span>   <span class="cmt">← dejar vacío en XAMPP</span></pre>
+      </div>
+    </div>
+    <div class="scol">
+      <div class="wbox">
+        <div class="blabel">⚠️ Error frecuente — contraseña</div>
+        <p>En XAMPP el usuario <code>root</code> no tiene contraseña por defecto. Si <code>DB_PASSWORD</code> tiene algo escrito, borralo y dejalo vacío.</p>
+      </div>
+      <div class="cw" style="margin-top:.8rem;">
+        <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">terminal — verificar conexión</span></div>
+        <pre><span class="cmt"># Probar que Laravel conecta a la DB</span>
+<span class="fn">php</span> artisan db:show
+
+<span class="cmt"># Si dice "Connected" está todo bien</span>
+<span class="cmt"># Si dice error, revisá el .env</span></pre>
+      </div>
+      <div class="sbox" style="margin-top:.8rem;">
+        <div class="blabel">✅ Listo cuando</div>
+        <p>El comando <code>php artisan db:show</code> muestre el nombre de la base de datos sin errores.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 13 — CREAR MODELO + MIGRACIÓN -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide" id="s13">
+  <div class="stag">Bloque 3 · Paso 2</div>
+  <h2>Crear modelos y migraciones</h2>
+  <p style="margin:.5rem 0 1rem;">Laravel genera los archivos automáticamente con un solo comando. La bandera <code>-m</code> crea la migración junto con el modelo:</p>
+  <div class="split">
+    <div class="scol">
+      <div class="cw">
+        <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">terminal — ejecutar UNO POR UNO</span></div>
+        <pre><span class="cmt"># Crea el Modelo + su migración (-m)</span>
+<span class="fn">php</span> artisan make:model Usuario -m
+<span class="fn">php</span> artisan make:model Curso -m
+<span class="fn">php</span> artisan make:model Venta -m
+<span class="fn">php</span> artisan make:model Pago -m
+<span class="fn">php</span> artisan make:model Inscripcion -m</pre>
+      </div>
+      <div class="ibox" style="margin-top:.8rem;">
+        <div class="blabel">📁 Qué archivos crea</div>
+        <p>Por cada comando se generan 2 archivos:<br>
+        • <code>app/Models/Curso.php</code> — el modelo<br>
+        • <code>database/migrations/xxxx_create_cursos_table.php</code> — la migración</p>
+      </div>
+    </div>
+    <div class="scol">
+      <div class="cw" style="flex:1;">
+        <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">app/Models/Curso.php — lo que genera Laravel</span></div>
+        <pre><span class="op">&lt;?php</span>
+
+<span class="kw">namespace</span> App\Models;
+
+<span class="kw">use</span> Illuminate\Database\Eloquent\Model;
+
+<span class="kw">class</span> <span class="cls">Curso</span> <span class="kw">extends</span> <span class="cls">Model</span>
+{
+    <span class="cmt">// Aquí definiremos los campos y relaciones</span>
+    <span class="cmt">// en los siguientes pasos</span>
+}</pre>
+      </div>
+      <div class="wbox" style="margin-top:.8rem;">
+        <div class="blabel">⚠️ Nombre en singular — siempre</div>
+        <p>El modelo se llama <code>Curso</code> (singular). Laravel automáticamente busca la tabla <code>cursos</code> (plural). Si el nombre no sigue esta convención, tenés que definir la tabla manualmente.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 14 — MIGRACIÓN USUARIOS -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide" id="s14">
+  <div class="stag">Bloque 3 · Paso 3</div>
+  <h2>Migración: tabla <span class="hl">usuarios</span></h2>
+  <p style="margin:.5rem 0 1rem;">Abrí el archivo de migración de usuarios en <code>database/migrations/</code> y reemplazá su contenido con esto:</p>
+  <div class="cw cscroll" style="flex:1;">
+    <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">database/migrations/xxxx_create_usuarios_table.php</span></div>
+    <pre><span class="op">&lt;?php</span>
+
+<span class="kw">use</span> Illuminate\Database\Migrations\Migration;
+<span class="kw">use</span> Illuminate\Database\Schema\Blueprint;
+<span class="kw">use</span> Illuminate\Support\Facades\Schema;
+
+<span class="kw">return new class</span> <span class="kw">extends</span> Migration
+{
+    <span class="kw">public function</span> <span class="fn">up</span>(): <span class="attr">void</span>
+    {
+        Schema::<span class="fn">create</span>(<span class="str">'usuarios'</span>, <span class="kw">function</span> (Blueprint $table) {
+            $table-><span class="fn">id</span>();                       <span class="cmt">// id auto-incremental</span>
+            $table-><span class="fn">string</span>(<span class="str">'nombre'</span>);           <span class="cmt">// varchar 255</span>
+            $table-><span class="fn">string</span>(<span class="str">'email'</span>)-><span class="fn">unique</span>(); <span class="cmt">// email único</span>
+            $table-><span class="fn">string</span>(<span class="str">'password'</span>);         <span class="cmt">// contraseña encriptada</span>
+            $table-><span class="fn">enum</span>(<span class="str">'rol'</span>, [<span class="str">'estudiante'</span>, <span class="str">'instructor'</span>, <span class="str">'admin'</span>])
+                   -><span class="fn">default</span>(<span class="str">'estudiante'</span>);   <span class="cmt">// rol por defecto</span>
+            $table-><span class="fn">string</span>(<span class="str">'telefono'</span>)-><span class="fn">nullable</span>();  <span class="cmt">// puede estar vacío</span>
+            $table-><span class="fn">text</span>(<span class="str">'bio'</span>)-><span class="fn">nullable</span>();         <span class="cmt">// biografía opcional</span>
+            $table-><span class="fn">timestamps</span>();              <span class="cmt">// created_at, updated_at</span>
+        });
+    }
+
+    <span class="kw">public function</span> <span class="fn">down</span>(): <span class="attr">void</span>
+    {
+        Schema::<span class="fn">dropIfExists</span>(<span class="str">'usuarios'</span>);
+    }
+};</pre>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 15 — MIGRACIÓN CURSOS -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide" id="s15">
+  <div class="stag">Bloque 3 · Paso 4</div>
+  <h2>Migración: tabla <span class="hl2">cursos</span></h2>
+  <div class="cw cscroll" style="flex:1;">
+    <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">database/migrations/xxxx_create_cursos_table.php</span></div>
+    <pre><span class="op">&lt;?php</span>
+
+<span class="kw">use</span> Illuminate\Database\Migrations\Migration;
+<span class="kw">use</span> Illuminate\Database\Schema\Blueprint;
+<span class="kw">use</span> Illuminate\Support\Facades\Schema;
+
+<span class="kw">return new class</span> <span class="kw">extends</span> Migration
+{
+    <span class="kw">public function</span> <span class="fn">up</span>(): <span class="attr">void</span>
+    {
+        Schema::<span class="fn">create</span>(<span class="str">'cursos'</span>, <span class="kw">function</span> (Blueprint $table) {
+            $table-><span class="fn">id</span>();
+
+            <span class="cmt">// CLAVE FORÁNEA: el instructor es un usuario</span>
+            $table-><span class="fn">foreignId</span>(<span class="str">'instructor_id'</span>)
+                   -><span class="fn">constrained</span>(<span class="str">'usuarios'</span>)
+                   -><span class="fn">onDelete</span>(<span class="str">'cascade'</span>);
+
+            $table-><span class="fn">string</span>(<span class="str">'titulo'</span>);
+            $table-><span class="fn">text</span>(<span class="str">'descripcion'</span>);
+            $table-><span class="fn">decimal</span>(<span class="str">'precio'</span>, <span class="num">8</span>, <span class="num">2</span>)-><span class="fn">default</span>(<span class="num">0</span>); <span class="cmt">// 8 dígitos, 2 decimales</span>
+            $table-><span class="fn">integer</span>(<span class="str">'duracion_horas'</span>);
+            $table-><span class="fn">string</span>(<span class="str">'imagen'</span>)-><span class="fn">nullable</span>();
+            $table-><span class="fn">enum</span>(<span class="str">'estado'</span>, [<span class="str">'borrador'</span>, <span class="str">'publicado'</span>, <span class="str">'archivado'</span>])
+                   -><span class="fn">default</span>(<span class="str">'borrador'</span>);
+            $table-><span class="fn">timestamps</span>();
+        });
+    }
+
+    <span class="kw">public function</span> <span class="fn">down</span>(): <span class="attr">void</span>
+    {
+        Schema::<span class="fn">dropIfExists</span>(<span class="str">'cursos'</span>);
+    }
+};</pre>
+  </div>
+  <div class="wbox" style="margin-top:.8rem;">
+    <div class="blabel">⚠️ Orden importa</div>
+    <p><code>cursos</code> depende de <code>usuarios</code> (por el <code>instructor_id</code>). La migración de <strong>usuarios debe ejecutarse primero</strong>. Laravel ordena por fecha en el nombre del archivo.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 16 — MIGRACIÓN VENTAS + PAGOS -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide" id="s16">
+  <div class="stag">Bloque 3 · Paso 5</div>
+  <h2>Migraciones: <span class="hl3">ventas</span> e <span class="hl5">inscripciones</span></h2>
+  <div class="split">
+    <div class="scol2">
+      <div class="cw" style="flex:1;">
+        <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">xxxx_create_ventas_table.php</span></div>
+        <pre><span class="kw">public function</span> <span class="fn">up</span>(): <span class="attr">void</span>
+{
+    Schema::<span class="fn">create</span>(<span class="str">'ventas'</span>, <span class="kw">function</span>(Blueprint $table) {
+        $table-><span class="fn">id</span>();
+        $table-><span class="fn">foreignId</span>(<span class="str">'usuario_id'</span>)
+               -><span class="fn">constrained</span>(<span class="str">'usuarios'</span>)
+               -><span class="fn">onDelete</span>(<span class="str">'cascade'</span>);
+        $table-><span class="fn">foreignId</span>(<span class="str">'curso_id'</span>)
+               -><span class="fn">constrained</span>(<span class="str">'cursos'</span>)
+               -><span class="fn">onDelete</span>(<span class="str">'cascade'</span>);
+        $table-><span class="fn">decimal</span>(<span class="str">'total'</span>, <span class="num">8</span>, <span class="num">2</span>);
+        $table-><span class="fn">enum</span>(<span class="str">'estado'</span>, [
+            <span class="str">'pendiente'</span>, <span class="str">'pagado'</span>, <span class="str">'cancelado'</span>
+        ])-><span class="fn">default</span>(<span class="str">'pendiente'</span>);
+        $table-><span class="fn">timestamps</span>();
+    });
+}</pre>
+      </div>
+    </div>
+    <div class="scol2">
+      <div class="cw" style="flex:1;">
+        <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">xxxx_create_inscripciones_table.php</span></div>
+        <pre><span class="kw">public function</span> <span class="fn">up</span>(): <span class="attr">void</span>
+{
+    Schema::<span class="fn">create</span>(<span class="str">'inscripciones'</span>, <span class="kw">function</span>(Blueprint $table) {
+        $table-><span class="fn">id</span>();
+        $table-><span class="fn">foreignId</span>(<span class="str">'usuario_id'</span>)
+               -><span class="fn">constrained</span>(<span class="str">'usuarios'</span>)
+               -><span class="fn">onDelete</span>(<span class="str">'cascade'</span>);
+        $table-><span class="fn">foreignId</span>(<span class="str">'curso_id'</span>)
+               -><span class="fn">constrained</span>(<span class="str">'cursos'</span>)
+               -><span class="fn">onDelete</span>(<span class="str">'cascade'</span>);
+        $table-><span class="fn">integer</span>(<span class="str">'progreso'</span>)-><span class="fn">default</span>(<span class="num">0</span>); <span class="cmt">// 0-100%</span>
+        $table-><span class="fn">boolean</span>(<span class="str">'completado'</span>)-><span class="fn">default</span>(<span class="kw">false</span>);
+        $table-><span class="fn">timestamps</span>();
+
+        <span class="cmt">// Un usuario no puede inscribirse dos veces al mismo curso</span>
+        $table-><span class="fn">unique</span>([<span class="str">'usuario_id'</span>, <span class="str">'curso_id'</span>]);
+    });
+}</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 17 — EJECUTAR MIGRACIONES -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide" id="s17">
+  <div class="stag">Bloque 3 · Paso 6</div>
+  <h2>Ejecutar las migraciones</h2>
+  <p style="margin:.5rem 0 1rem;">Con un solo comando Laravel crea <strong style="color:var(--text)">todas las tablas</strong> en la base de datos en el orden correcto:</p>
+  <div class="split">
+    <div class="scol">
+      <div class="cw">
+        <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">terminal</span></div>
+        <pre><span class="cmt"># Ejecutar TODAS las migraciones</span>
+<span class="fn">php</span> artisan migrate
+
+<span class="cmt"># Si ves esto, funcionó correctamente:</span>
+<span class="cmt">#  INFO  Running migrations.</span>
+<span class="cmt">#  create_usuarios_table ........ 10ms DONE</span>
+<span class="cmt">#  create_cursos_table .......... 12ms DONE</span>
+<span class="cmt">#  create_ventas_table .......... 8ms  DONE</span>
+<span class="cmt">#  create_pagos_table ........... 7ms  DONE</span>
+<span class="cmt">#  create_inscripciones_table ... 9ms  DONE</span></pre>
+      </div>
+      <div class="cw" style="margin-top:.8rem;">
+        <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">terminal — comandos útiles</span></div>
+        <pre><span class="cmt"># Si cometiste un error, deshacer y volver a crear:</span>
+<span class="fn">php</span> artisan migrate:fresh
+
+<span class="cmt"># Ver estado de las migraciones:</span>
+<span class="fn">php</span> artisan migrate:status</pre>
+      </div>
+    </div>
+    <div class="scol">
+      <div class="ebox">
+        <div class="blabel">❌ Error más común</div>
+        <p><strong>"Table already exists"</strong> — significa que ya ejecutaste la migración antes. Usá <code>php artisan migrate:fresh</code> para borrar todo y volver a crear. <em>Cuidado: borra todos los datos.</em></p>
+      </div>
+      <div class="wbox" style="margin-top:.8rem;">
+        <div class="blabel">⚠️ Otro error frecuente</div>
+        <p><strong>"Foreign key constraint"</strong> — el orden de las migraciones está mal. La tabla referenciada debe existir antes. Revisá las fechas en los nombres de los archivos.</p>
+      </div>
+      <div class="sbox" style="margin-top:.8rem;">
+        <div class="blabel">✅ Verificar en phpMyAdmin</div>
+        <p>Abrí <code>localhost/phpmyadmin</code> → seleccioná <code>cursos_db</code>. Deberías ver todas las tablas listadas en el panel izquierdo.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 18 — MODELOS CON RELACIONES -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide" id="s18">
+  <div class="stag">Bloque 3 · Paso 7</div>
+  <h2>Definir relaciones en los modelos</h2>
+  <p style="margin:.5rem 0 1rem;">Eloquent permite navegar entre tablas usando métodos de relación. Editá cada modelo:</p>
+  <div class="split">
+    <div class="scol2">
+      <div class="cw" style="flex:1;">
+        <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">app/Models/Usuario.php</span></div>
+        <pre><span class="op">&lt;?php</span>
+<span class="kw">namespace</span> App\Models;
+<span class="kw">use</span> Illuminate\Database\Eloquent\Model;
+
+<span class="kw">class</span> <span class="cls">Usuario</span> <span class="kw">extends</span> <span class="cls">Model</span>
+{
+    <span class="kw">protected</span> $table = <span class="str">'usuarios'</span>;
+
+    <span class="kw">protected</span> $fillable = [
+        <span class="str">'nombre'</span>, <span class="str">'email'</span>, <span class="str">'password'</span>, <span class="str">'rol'</span>
+    ];
+
+    <span class="cmt">// Un usuario puede tener MUCHOS cursos (como instructor)</span>
+    <span class="kw">public function</span> <span class="fn">cursos</span>()
+    {
+        <span class="kw">return</span> $<span class="kw">this</span>-><span class="fn">hasMany</span>(Curso::class, <span class="str">'instructor_id'</span>);
+    }
+
+    <span class="cmt">// Un usuario tiene MUCHAS ventas (como estudiante)</span>
+    <span class="kw">public function</span> <span class="fn">ventas</span>()
+    {
+        <span class="kw">return</span> $<span class="kw">this</span>-><span class="fn">hasMany</span>(Venta::class, <span class="str">'usuario_id'</span>);
+    }
+
+    <span class="cmt">// Cursos en los que está inscrito</span>
+    <span class="kw">public function</span> <span class="fn">inscripciones</span>()
+    {
+        <span class="kw">return</span> $<span class="kw">this</span>-><span class="fn">belongsToMany</span>(
+            Curso::class, <span class="str">'inscripciones'</span>
+        )-><span class="fn">withPivot</span>(<span class="str">'progreso'</span>, <span class="str">'completado'</span>);
+    }
+}</pre>
+      </div>
+    </div>
+    <div class="scol2">
+      <div class="cw" style="flex:1;">
+        <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">app/Models/Curso.php</span></div>
+        <pre><span class="op">&lt;?php</span>
+<span class="kw">namespace</span> App\Models;
+<span class="kw">use</span> Illuminate\Database\Eloquent\Model;
+
+<span class="kw">class</span> <span class="cls">Curso</span> <span class="kw">extends</span> <span class="cls">Model</span>
+{
+    <span class="kw">protected</span> $fillable = [
+        <span class="str">'titulo'</span>, <span class="str">'descripcion'</span>, <span class="str">'precio'</span>,
+        <span class="str">'duracion_horas'</span>, <span class="str">'instructor_id'</span>, <span class="str">'estado'</span>
+    ];
+
+    <span class="cmt">// Un curso PERTENECE a un instructor (usuario)</span>
+    <span class="kw">public function</span> <span class="fn">instructor</span>()
+    {
+        <span class="kw">return</span> $<span class="kw">this</span>-><span class="fn">belongsTo</span>(Usuario::class, <span class="str">'instructor_id'</span>);
+    }
+
+    <span class="cmt">// Un curso tiene MUCHAS ventas</span>
+    <span class="kw">public function</span> <span class="fn">ventas</span>()
+    {
+        <span class="kw">return</span> $<span class="kw">this</span>-><span class="fn">hasMany</span>(Venta::class);
+    }
+
+    <span class="cmt">// Estudiantes inscritos al curso</span>
+    <span class="kw">public function</span> <span class="fn">estudiantes</span>()
+    {
+        <span class="kw">return</span> $<span class="kw">this</span>-><span class="fn">belongsToMany</span>(
+            Usuario::class, <span class="str">'inscripciones'</span>
+        )-><span class="fn">withPivot</span>(<span class="str">'progreso'</span>, <span class="str">'completado'</span>);
+    }
+}</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 19 — ELOQUENT QUERIES -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide" id="s19">
+  <div class="stag">Bloque 3 · Paso 8</div>
+  <h2>Consultas con Eloquent — código real</h2>
+  <p style="margin:.5rem 0 1rem;">Así se usan los modelos para consultar y guardar datos. Todo esto va en los controladores:</p>
+  <div class="cw cscroll" style="flex:1;">
+    <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">Ejemplos de Eloquent — copiar al controlador</span></div>
+    <pre><span class="cmt">// ── CREAR ────────────────────────────────────────</span>
+$curso = Curso::<span class="fn">create</span>([
+    <span class="str">'titulo'</span>         => <span class="str">'PHP Avanzado'</span>,
+    <span class="str">'descripcion'</span>    => <span class="str">'Curso completo de PHP'</span>,
+    <span class="str">'precio'</span>         => <span class="num">200.00</span>,
+    <span class="str">'duracion_horas'</span> => <span class="num">30</span>,
+    <span class="str">'instructor_id'</span>  => <span class="num">1</span>,
+]);
+
+<span class="cmt">// ── LEER ─────────────────────────────────────────</span>
+<span class="cmt">// Todos los cursos</span>
+$cursos = Curso::<span class="fn">all</span>();
+
+<span class="cmt">// Con filtro</span>
+$cursosPublicados = Curso::<span class="fn">where</span>(<span class="str">'estado'</span>, <span class="str">'publicado'</span>)-><span class="fn">get</span>();
+
+<span class="cmt">// Buscar por id (lanza error si no existe)</span>
+$curso = Curso::<span class="fn">findOrFail</span>(<span class="num">1</span>);
+
+<span class="cmt">// Con relaciones (carga el instructor también)</span>
+$cursos = Curso::<span class="fn">with</span>(<span class="str">'instructor'</span>)-><span class="fn">get</span>();
+
+<span class="cmt">// Usar la relación</span>
+<span class="fn">echo</span> $curso->instructor->nombre; <span class="cmt">// nombre del instructor</span>
+
+<span class="cmt">// ── ACTUALIZAR ───────────────────────────────────</span>
+$curso-><span class="fn">update</span>([<span class="str">'precio'</span> => <span class="num">250.00</span>]);
+
+<span class="cmt">// ── ELIMINAR ─────────────────────────────────────</span>
+$curso-><span class="fn">delete</span>();
+
+<span class="cmt">// ── CONSULTA AVANZADA ────────────────────────────</span>
+<span class="cmt">// Cursos con precio entre 100 y 300, ordenados</span>
+$cursos = Curso::<span class="fn">whereBetween</span>(<span class="str">'precio'</span>, [<span class="num">100</span>, <span class="num">300</span>])
+                -><span class="fn">orderBy</span>(<span class="str">'titulo'</span>)
+                -><span class="fn">paginate</span>(<span class="num">10</span>); <span class="cmt">// 10 por página</span>
+
+<span class="cmt">// Inscribir estudiante en un curso</span>
+$usuario-><span class="fn">inscripciones</span>()-><span class="fn">attach</span>($curso->id, [
+    <span class="str">'progreso'</span>   => <span class="num">0</span>,
+    <span class="str">'completado'</span> => <span class="kw">false</span>,
+]);</pre>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 20 — SEEDERS -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide" id="s20">
+  <div class="stag">Bloque 3 · Paso 9</div>
+  <h2>Seeders — poblar la base de datos con datos de prueba</h2>
+  <p style="margin:.5rem 0 1rem;">Los seeders insertan datos iniciales para probar la aplicación sin cargarlos manualmente:</p>
+  <div class="split">
+    <div class="scol2">
+      <div class="cw" style="flex:1;">
+        <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">terminal — crear seeder</span></div>
+        <pre><span class="fn">php</span> artisan make:seeder CursoSeeder</pre>
+      </div>
+      <div class="cw" style="margin-top:.8rem;flex:1;">
+        <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">database/seeders/CursoSeeder.php</span></div>
+        <pre><span class="op">&lt;?php</span>
+<span class="kw">namespace</span> Database\Seeders;
+
+<span class="kw">use</span> App\Models\Curso;
+<span class="kw">use</span> App\Models\Usuario;
+<span class="kw">use</span> Illuminate\Database\Seeder;
+
+<span class="kw">class</span> <span class="cls">CursoSeeder</span> <span class="kw">extends</span> <span class="cls">Seeder</span>
+{
+    <span class="kw">public function</span> <span class="fn">run</span>(): <span class="attr">void</span>
+    {
+        <span class="cmt">// Crear un instructor de prueba</span>
+        $instructor = Usuario::<span class="fn">create</span>([
+            <span class="str">'nombre'</span>   => <span class="str">'Docente Demo'</span>,
+            <span class="str">'email'</span>    => <span class="str">'docente@demo.com'</span>,
+            <span class="str">'password'</span> => <span class="fn">bcrypt</span>(<span class="str">'password123'</span>),
+            <span class="str">'rol'</span>      => <span class="str">'instructor'</span>,
+        ]);
+
+        <span class="cmt">// Crear cursos de prueba</span>
+        $cursos = [
+            [<span class="str">'titulo'</span>=><span class="str">'PHP Básico'</span>,    <span class="str">'precio'</span>=><span class="num">100</span>, <span class="str">'duracion_horas'</span>=><span class="num">20</span>],
+            [<span class="str">'titulo'</span>=><span class="str">'Laravel Pro'</span>,    <span class="str">'precio'</span>=><span class="num">250</span>, <span class="str">'duracion_horas'</span>=><span class="num">40</span>],
+            [<span class="str">'titulo'</span>=><span class="str">'MySQL Avanzado'</span>, <span class="str">'precio'</span>=><span class="num">180</span>, <span class="str">'duracion_horas'</span>=><span class="num">25</span>],
+        ];
+
+        <span class="kw">foreach</span> ($cursos <span class="kw">as</span> $data) {
+            Curso::<span class="fn">create</span>([
+                ...$data,
+                <span class="str">'descripcion'</span>   => <span class="str">'Descripción del curso'</span>,
+                <span class="str">'instructor_id'</span> => $instructor->id,
+                <span class="str">'estado'</span>        => <span class="str">'publicado'</span>,
+            ]);
+        }
+    }
+}</pre>
+      </div>
+    </div>
+    <div class="scol">
+      <div class="cw">
+        <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">terminal — ejecutar seeders</span></div>
+        <pre><span class="cmt"># Ejecutar todos los seeders</span>
+<span class="fn">php</span> artisan db:seed
+
+<span class="cmt"># O ejecutar uno específico</span>
+<span class="fn">php</span> artisan db:seed --class=CursoSeeder
+
+<span class="cmt"># Migrar Y sembrar en un solo comando</span>
+<span class="fn">php</span> artisan migrate:fresh --seed</pre>
+      </div>
+      <div class="ibox" style="margin-top:.8rem;">
+        <div class="blabel">💡 Verificar datos</div>
+        <p>Después de ejecutar el seeder, abrí <code>phpMyAdmin</code> y revisá la tabla <code>cursos</code>. Deberías ver los 3 cursos insertados.</p>
+      </div>
+      <div class="sbox" style="margin-top:.8rem;">
+        <div class="blabel">✅ Siguiente paso</div>
+        <p>Con la base de datos lista y datos de prueba, ya podemos crear los controladores y rutas para el reto.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 21 — SECCIÓN RETO ABR -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide" id="s21">
+  <div class="stag">Bloque 4 · 1:40 – 2:00</div>
+  <div class="sintro" style="background:linear-gradient(135deg,rgba(245,158,11,.06) 0%,transparent 60%);">
+    <div class="sphase">Proyecto final</div>
+    <div class="bacc"><span class="hl2">Reto ABR</span><br>Sistema de Cursos</div>
+    <p style="max-width:480px;font-size:1rem;">Aplicarás todo lo aprendido construyendo un sistema real de cursos online con ventas. Cada grupo define su alcance.</p>
+    <p style="margin-top:.8rem;font-size:.88rem;">⏱ Duración: <strong style="color:var(--acc2)">20 minutos para planificar</strong></p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 22 — CONSIGNA DEL RETO -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide" id="s22">
+  <div class="stag">Bloque 4 · Consigna</div>
+  <h2>¿Qué deben construir?</h2>
+  <div class="g2" style="margin:1rem 0;">
+    <div>
+      <ul class="sl">
+        <li class="si"><div class="sn">1</div><div class="st"><strong>Módulo de usuarios:</strong> registro, login, roles (estudiante, instructor, admin)</div></li>
+        <li class="si"><div class="sn">2</div><div class="st"><strong>Catálogo de cursos:</strong> listado, detalle, filtro por categoría o precio</div></li>
+        <li class="si"><div class="sn">3</div><div class="st"><strong>Proceso de venta:</strong> carrito, confirmación, registro de pago</div></li>
+        <li class="si"><div class="sn">4</div><div class="st"><strong>Panel del estudiante:</strong> mis cursos, progreso de inscripción</div></li>
+        <li class="si"><div class="sn">5</div><div class="st"><strong>Panel del instructor:</strong> mis cursos publicados, ventas realizadas</div></li>
+      </ul>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.8rem;">
+      <div class="ibox">
+        <div class="blabel">🎯 Mínimo requerido</div>
+        <p>Modelos con relaciones funcionando + al menos 2 migraciones con datos de prueba + una vista que consulte y muestre datos de la base de datos.</p>
+      </div>
+      <div class="wbox">
+        <div class="blabel">⭐ Para nota extra</div>
+        <p>Implementar autenticación con <code>php artisan make:auth</code> o Breeze, y que el sistema distinga entre roles de usuario.</p>
+      </div>
+      <div class="sbox">
+        <div class="blabel">📋 Entregable</div>
+        <p>Repositorio en GitHub con el proyecto + participar en el foro de Moodle indicando qué modelos y migraciones aplicaron y por qué.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 23 — ERRORES COMUNES -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide" id="s23">
+  <div class="stag">Referencia rápida</div>
+  <h2>Errores frecuentes y soluciones</h2>
+  <div style="overflow:auto;flex:1;margin-top:.8rem;">
+    <table class="tbl">
+      <thead>
+        <tr><th>Error</th><th>Causa</th><th>Solución</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>SQLSTATE[HY000] [2002]</td><td>MySQL de XAMPP no está corriendo</td><td>Abrir XAMPP y hacer clic en Start en MySQL</td></tr>
+        <tr><td>Class "App\Models\Curso" not found</td><td>El modelo no existe o tiene typo</td><td>Verificar nombre exacto del archivo y del namespace</td></tr>
+        <tr><td>Add [campo] to fillable property</td><td>El campo no está en <code>$fillable</code></td><td>Agregar el campo al array <code>$fillable</code> del modelo</td></tr>
+        <tr><td>SQLSTATE[23000] Foreign key constraint</td><td>El registro padre no existe</td><td>Crear primero el usuario/curso antes de la venta</td></tr>
+        <tr><td>Target class [Controller] does not exist</td><td>El controlador no fue creado</td><td>Ejecutar <code>php artisan make:controller NombreController</code></td></tr>
+        <tr><td>No application key has been set</td><td>Falta la APP_KEY en .env</td><td>Ejecutar <code>php artisan key:generate</code></td></tr>
+        <tr><td>Table already exists</td><td>La migración ya se ejecutó antes</td><td>Ejecutar <code>php artisan migrate:fresh</code></td></tr>
+        <tr><td>Nothing to migrate</td><td>Todas las migraciones ya corrieron</td><td>Normal — no es un error. La DB ya está actualizada.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 24 — COMANDOS RESUMEN -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide" id="s24">
+  <div class="stag">Referencia · Cheatsheet</div>
+  <h2>Comandos Artisan — hoja de referencia</h2>
+  <div class="g2" style="margin-top:1rem;gap:1rem;">
+    <div class="cw">
+      <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">Crear archivos</span></div>
+      <pre><span class="fn">php</span> artisan make:model     NombreModelo -m
+<span class="fn">php</span> artisan make:controller NombreController
+<span class="fn">php</span> artisan make:migration  create_tabla_table
+<span class="fn">php</span> artisan make:seeder     NombreSeeder
+<span class="fn">php</span> artisan make:request    NombreRequest</pre>
+    </div>
+    <div class="cw">
+      <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">Base de datos</span></div>
+      <pre><span class="fn">php</span> artisan migrate           <span class="cmt"># ejecutar migraciones</span>
+<span class="fn">php</span> artisan migrate:fresh      <span class="cmt"># borrar y recrear todo</span>
+<span class="fn">php</span> artisan migrate:status     <span class="cmt"># ver estado</span>
+<span class="fn">php</span> artisan db:seed            <span class="cmt"># ejecutar seeders</span>
+<span class="fn">php</span> artisan migrate:fresh --seed <span class="cmt"># fresh + seed</span></pre>
+    </div>
+    <div class="cw">
+      <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">Servidor y utilidades</span></div>
+      <pre><span class="fn">php</span> artisan serve             <span class="cmt"># servidor local :8000</span>
+<span class="fn">php</span> artisan route:list        <span class="cmt"># ver todas las rutas</span>
+<span class="fn">php</span> artisan key:generate      <span class="cmt"># generar APP_KEY</span>
+<span class="fn">php</span> artisan cache:clear       <span class="cmt"># limpiar caché</span>
+<span class="fn">php</span> artisan config:clear      <span class="cmt"># limpiar config</span></pre>
+    </div>
+    <div class="cw">
+      <div class="ch"><div class="dr" style="background:#ff5f57"></div><div class="dr" style="background:#febc2e"></div><div class="dr" style="background:#28c840"></div><span class="cfn">Eloquent quick reference</span></div>
+      <pre>Modelo::<span class="fn">all</span>()               <span class="cmt"># todos los registros</span>
+Modelo::<span class="fn">find</span>($id)           <span class="cmt"># buscar por id</span>
+Modelo::<span class="fn">findOrFail</span>($id)     <span class="cmt"># o lanza 404</span>
+Modelo::<span class="fn">where</span>(<span class="str">'col'</span>, $v)-><span class="fn">get</span>()
+Modelo::<span class="fn">create</span>([...])       <span class="cmt"># crear registro</span>
+$obj-><span class="fn">update</span>([...])          <span class="cmt"># actualizar</span>
+$obj-><span class="fn">delete</span>()               <span class="cmt"># eliminar</span></pre>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SLIDE 25 — CIERRE -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="slide tslide" id="s25">
+  <div class="stag">Fin del laboratorio</div>
+  <div class="php-logo">&lt;/&gt;</div>
+  <h1>¡A construir! 🚀</h1>
+  <p style="margin-top:1rem;max-width:520px;font-size:1.05rem;">Instalaste el entorno, entendiste POO, diseñaste la base de datos, creaste modelos y migraciones con Laravel. Ahora aplicalo en el reto.</p>
+  <p style="margin-top:.8rem;max-width:520px;color:var(--text2);">Recordá participar en el <strong style="color:var(--text)">foro de Moodle</strong> con los modelos y migraciones que tu grupo va a utilizar en el reto final.</p>
+  <div style="display:flex;gap:.8rem;margin-top:1.8rem;flex-wrap:wrap;">
+    <span class="badge purple">laravel.com/docs</span>
+    <span class="badge amber">phpMyAdmin → localhost</span>
+    <span class="badge green">youtube.com — lista de videos</span>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<!-- NAV -->
+<div class="nav">
+  <button class="nbtn" onclick="prev()">← Anterior</button>
+  <div class="dots" id="dots"></div>
+  <span class="counter" id="counter">1 / 25</span>
+  <button class="nbtn" onclick="next()">Siguiente →</button>
+</div>
+
+<script>
+const TOTAL = 25;
+let cur = 1;
+const dotsEl = document.getElementById('dots');
+for (let i = 1; i <= TOTAL; i++) {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 1 ? ' active' : '');
+  d.onclick = () => go(i);
+  dotsEl.appendChild(d);
+}
+function go(n) {
+  if (n < 1 || n > TOTAL) return;
+  document.getElementById('s' + cur).classList.remove('active');
+  cur = n;
+  const s = document.getElementById('s' + cur);
+  s.style.display = 'flex';
+  s.offsetHeight;
+  s.classList.add('active');
+  document.getElementById('counter').textContent = cur + ' / ' + TOTAL;
+  document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i + 1 === cur));
+}
+function next() { go(cur + 1); }
+function prev() { go(cur - 1); }
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+  if (e.key === 'ArrowLeft') prev();
+});
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 50) dx < 0 ? next() : prev();
+});
+</script>
+</body>
+</html>
