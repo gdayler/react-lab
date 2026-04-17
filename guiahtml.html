@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guía Práctica: HTML, CSS y JS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --surface: #161616;
+      --surface2: #1e1e1e;
+      --border: #2a2a2a;
+      --accent-html: #ff6b35;
+      --accent-css: #4ecdc4;
+      --accent-js: #ffe66d;
+      --text: #e8e8e8;
+      --muted: #666;
+      --code-bg: #111;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13,13,13,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      height: 56px;
+    }
+    nav .logo {
+      font-size: .75rem;
+      font-family: 'Space Mono', monospace;
+      color: var(--muted);
+      margin-right: auto;
+      letter-spacing: .05em;
+    }
+    nav a {
+      text-decoration: none;
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: .4rem .9rem;
+      border-radius: 4px;
+      transition: background .2s, color .2s;
+      color: var(--muted);
+    }
+    nav a:hover { color: var(--text); background: var(--surface2); }
+    nav a.html { color: var(--accent-html); }
+    nav a.css  { color: var(--accent-css); }
+    nav a.js   { color: var(--accent-js); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 6rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 80% 50%, rgba(255,107,53,.07) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 20% 80%, rgba(78,205,196,.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: .7rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(3rem, 8vw, 7rem);
+      font-weight: 800;
+      line-height: .95;
+      margin-bottom: 2rem;
+    }
+    .hero h1 .t-html { color: var(--accent-html); }
+    .hero h1 .t-css  { color: var(--accent-css); }
+    .hero h1 .t-js   { color: var(--accent-js); }
+    .hero p {
+      max-width: 520px;
+      font-size: 1.1rem;
+      color: #aaa;
+      margin-bottom: 2.5rem;
+      line-height: 1.8;
+    }
+    .hero-tags {
+      display: flex;
+      gap: .6rem;
+      flex-wrap: wrap;
+    }
+    .tag {
+      font-family: 'Space Mono', monospace;
+      font-size: .68rem;
+      padding: .3rem .8rem;
+      border-radius: 2px;
+      border: 1px solid;
+      letter-spacing: .05em;
+    }
+    .tag.h { border-color: var(--accent-html); color: var(--accent-html); }
+    .tag.c { border-color: var(--accent-css); color: var(--accent-css); }
+    .tag.j { border-color: var(--accent-js); color: var(--accent-js); }
+
+    /* ── SECTIONS ── */
+    section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
+      border-top: 1px solid var(--border);
+    }
+    section:first-of-type { border-top: none; }
+
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: .65rem;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .section-label.html { color: var(--accent-html); }
+    .section-label.css  { color: var(--accent-css); }
+    .section-label.js   { color: var(--accent-js); }
+    .section-label.intro { color: var(--muted); }
+
+    h2 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 2rem 0 .8rem;
+      color: #ccc;
+    }
+    p { color: #aaa; margin-bottom: 1rem; }
+    p strong { color: var(--text); }
+
+    /* ── CODE ── */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.4rem 1.6rem;
+      overflow-x: auto;
+      margin: 1.2rem 0;
+      position: relative;
+    }
+    pre::before {
+      content: attr(data-lang);
+      position: absolute;
+      top: .6rem;
+      right: .8rem;
+      font-family: 'Space Mono', monospace;
+      font-size: .6rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    code {
+      font-family: 'Space Mono', monospace;
+      font-size: .82rem;
+      line-height: 1.8;
+      color: #d4d4d4;
+    }
+    .kw  { color: #c586c0; }
+    .tag-c { color: #4ec9b0; }
+    .attr { color: #9cdcfe; }
+    .val  { color: #ce9178; }
+    .com  { color: #6a9955; }
+    .sel  { color: var(--accent-css); }
+    .prop { color: #9cdcfe; }
+    .num  { color: #b5cea8; }
+    .fn   { color: #dcdcaa; }
+    .str  { color: #ce9178; }
+
+    /* ── TAGS TABLE ── */
+    .tags-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 1.5rem 0;
+    }
+    .tag-card {
+      background: var(--surface);
+      padding: 1rem 1.2rem;
+      transition: background .2s;
+    }
+    .tag-card:hover { background: var(--surface2); }
+    .tag-name {
+      font-family: 'Space Mono', monospace;
+      font-size: .78rem;
+      color: var(--accent-html);
+      margin-bottom: .3rem;
+    }
+    .tag-desc {
+      font-size: .82rem;
+      color: #888;
+      line-height: 1.5;
+    }
+
+    /* ── COMPARISON TABLE ── */
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 1.5rem 0;
+    }
+    .compare-head {
+      padding: .8rem 1.2rem;
+      font-weight: 700;
+      font-size: .85rem;
+      background: var(--surface2);
+      letter-spacing: .05em;
+    }
+    .compare-head.h4 { color: var(--accent-html); }
+    .compare-head.h5 { color: var(--accent-css); }
+    .compare-row {
+      padding: .7rem 1.2rem;
+      font-size: .82rem;
+      color: #aaa;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      line-height: 1.5;
+    }
+
+    /* ── PREVIEW BOX ── */
+    .preview-wrap {
+      margin: 2rem 0;
+    }
+    .preview-label {
+      font-family: 'Space Mono', monospace;
+      font-size: .65rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .5rem;
+    }
+    .preview {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .preview-bar {
+      background: var(--surface2);
+      padding: .5rem 1rem;
+      display: flex;
+      gap: .4rem;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot.r { background: #ff5f57; }
+    .dot.y { background: #febc2e; }
+    .dot.g { background: #28c840; }
+    .preview iframe {
+      width: 100%;
+      border: none;
+      background: #fff;
+    }
+
+    /* ── STEP CALLOUT ── */
+    .callout {
+      border-left: 3px solid;
+      padding: 1rem 1.2rem;
+      border-radius: 0 6px 6px 0;
+      margin: 1.5rem 0;
+      background: var(--surface);
+    }
+    .callout.html { border-color: var(--accent-html); }
+    .callout.css  { border-color: var(--accent-css); }
+    .callout.js   { border-color: var(--accent-js); }
+    .callout.info { border-color: var(--muted); }
+    .callout p { margin: 0; font-size: .9rem; }
+
+    /* ── INLINE CODE ── */
+    ic {
+      font-family: 'Space Mono', monospace;
+      font-size: .8em;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: .1em .4em;
+      border-radius: 3px;
+      color: var(--accent-html);
+    }
+
+    /* ── SCROLL FADE ── */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── PILL BADGE ── */
+    .badge {
+      display: inline-block;
+      font-family: 'Space Mono', monospace;
+      font-size: .6rem;
+      padding: .15rem .5rem;
+      border-radius: 2px;
+      vertical-align: middle;
+      margin-left: .4rem;
+      letter-spacing: .05em;
+    }
+    .badge.new { background: rgba(78,205,196,.15); color: var(--accent-css); border: 1px solid rgba(78,205,196,.3); }
+    .badge.old { background: rgba(255,107,53,.1); color: var(--accent-html); border: 1px solid rgba(255,107,53,.25); }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 3rem 2rem;
+      text-align: center;
+      font-family: 'Space Mono', monospace;
+      font-size: .7rem;
+      color: var(--muted);
+      letter-spacing: .08em;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <span class="logo">// guia web dev</span>
+  <a href="#intro">Intro</a>
+  <a href="#html" class="html">HTML</a>
+  <a href="#css" class="css">CSS</a>
+  <a href="#js" class="js">JS</a>
+</nav>
+
+<!-- ═══════════════════════════════ HERO ═══════════════════════════════ -->
+<div class="hero">
+  <p class="hero-eyebrow">// guía práctica completa</p>
+  <h1>
+    <span class="t-html">HTML</span><br>
+    <span class="t-css">CSS</span><br>
+    <span class="t-js">JavaScript</span>
+  </h1>
+  <p>Aprende las tres tecnologías base de la web construyendo una página real, paso a paso, viendo cómo cada capa transforma el resultado.</p>
+  <div class="hero-tags">
+    <span class="tag h">Estructura</span>
+    <span class="tag c">Estilo</span>
+    <span class="tag j">Interactividad</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ INTRO ═══════════════════════════════ -->
+<section id="intro" class="fade-in">
+  <span class="section-label intro">// punto de partida</span>
+  <h2>¿Qué son HTML, CSS y JS?</h2>
+  <p>Toda página web que ves en tu navegador está construida con tres tecnologías que trabajan juntas. No son opcionales: <strong>son los tres pilares de la web</strong>.</p>
+
+  <div class="compare">
+    <div class="compare-head h4">Tecnología</div>
+    <div class="compare-head h5">Rol</div>
+    <div class="compare-row">🧱 <strong>HTML</strong></div>
+    <div class="compare-row">La <strong>estructura</strong>. Es el esqueleto. Define qué hay en la página: títulos, párrafos, imágenes, botones.</div>
+    <div class="compare-row">🎨 <strong>CSS</strong></div>
+    <div class="compare-row">El <strong>diseño</strong>. Es la ropa. Define cómo se ve: colores, fuentes, espacios, animaciones.</div>
+    <div class="compare-row">⚡ <strong>JavaScript</strong></div>
+    <div class="compare-row">La <strong>lógica</strong>. Es el cerebro. Define qué hace: reaccionar a clics, cargar datos, mostrar/ocultar cosas.</div>
+  </div>
+
+  <div class="callout info">
+    <p>💡 La analogía clásica: HTML es la casa (paredes, puertas, ventanas), CSS es la decoración (pintura, muebles), JS es la electricidad (luces que se encienden, puertas que se abren).</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ HTML ═══════════════════════════════ -->
+<section id="html" class="fade-in">
+  <span class="section-label html">// 01 — estructura</span>
+  <h2>HTML</h2>
+  <p><strong>HyperText Markup Language</strong>. No es un lenguaje de programación, es un lenguaje de marcado. Usás <strong>etiquetas (tags)</strong> para decirle al navegador qué es cada cosa.</p>
+
+  <h3>Anatomía de una etiqueta</h3>
+  <pre data-lang="HTML"><code><span class="tag-c">&lt;p</span> <span class="attr">class</span>=<span class="val">"intro"</span><span class="tag-c">&gt;</span>Hola mundo<span class="tag-c">&lt;/p&gt;</span>
+
+<span class="com">&lt;!--  ↑ tag de apertura      ↑ contenido   ↑ tag de cierre  --&gt;</span>
+<span class="com">&lt;!--       ↑ atributo = valor                               --&gt;</span></code></pre>
+
+  <p>Algunas etiquetas son <strong>auto-cerrantes</strong> (no tienen contenido interno):</p>
+  <pre data-lang="HTML"><code><span class="tag-c">&lt;img</span> <span class="attr">src</span>=<span class="val">"foto.jpg"</span> <span class="attr">alt</span>=<span class="val">"Mi foto"</span> <span class="tag-c">/&gt;</span>
+<span class="tag-c">&lt;br /&gt;</span>
+<span class="tag-c">&lt;input</span> <span class="attr">type</span>=<span class="val">"text"</span> <span class="tag-c">/&gt;</span></code></pre>
+
+  <h3>Estructura base de toda página HTML</h3>
+  <pre data-lang="HTML"><code><span class="tag-c">&lt;!DOCTYPE html&gt;</span>
+<span class="tag-c">&lt;html</span> <span class="attr">lang</span>=<span class="val">"es"</span><span class="tag-c">&gt;</span>
+  <span class="tag-c">&lt;head&gt;</span>
+    <span class="tag-c">&lt;meta</span> <span class="attr">charset</span>=<span class="val">"UTF-8"</span> <span class="tag-c">/&gt;</span>
+    <span class="tag-c">&lt;title&gt;</span>Mi página<span class="tag-c">&lt;/title&gt;</span>
+  <span class="tag-c">&lt;/head&gt;</span>
+  <span class="tag-c">&lt;body&gt;</span>
+    <span class="com">&lt;!-- Todo lo visible va aquí --&gt;</span>
+  <span class="tag-c">&lt;/body&gt;</span>
+<span class="tag-c">&lt;/html&gt;</span></code></pre>
+
+  <div class="callout html">
+    <p>📌 <strong>&lt;head&gt;</strong> = configuración invisible (título, fuentes, meta datos). <strong>&lt;body&gt;</strong> = todo lo que el usuario ve.</p>
+  </div>
+
+  <h3>Los tags más importantes</h3>
+  <div class="tags-grid">
+    <div class="tag-card"><div class="tag-name">&lt;h1&gt; ... &lt;h6&gt;</div><div class="tag-desc">Títulos. h1 es el más importante, h6 el menor. Jerarquía del contenido.</div></div>
+    <div class="tag-card"><div class="tag-name">&lt;p&gt;</div><div class="tag-desc">Párrafo de texto. El bloque de texto más común.</div></div>
+    <div class="tag-card"><div class="tag-name">&lt;a&gt;</div><div class="tag-desc">Enlace (anchor). Usa el atributo href para la URL de destino.</div></div>
+    <div class="tag-card"><div class="tag-name">&lt;img&gt;</div><div class="tag-desc">Imagen. Requiere src (ruta) y alt (texto alternativo).</div></div>
+    <div class="tag-card"><div class="tag-name">&lt;ul&gt; / &lt;ol&gt;</div><div class="tag-desc">Lista sin orden / con orden. Sus ítems son &lt;li&gt;.</div></div>
+    <div class="tag-card"><div class="tag-name">&lt;div&gt;</div><div class="tag-desc">Contenedor genérico en bloque. El más usado para agrupar.</div></div>
+    <div class="tag-card"><div class="tag-name">&lt;span&gt;</div><div class="tag-desc">Contenedor genérico en línea. Para estilizar texto parcialmente.</div></div>
+    <div class="tag-card"><div class="tag-name">&lt;button&gt;</div><div class="tag-desc">Botón clickeable. Siempre usalo para acciones.</div></div>
+    <div class="tag-card"><div class="tag-name">&lt;input&gt;</div><div class="tag-desc">Campo de formulario. El atributo type define si es texto, número, checkbox, etc.</div></div>
+    <div class="tag-card"><div class="tag-name">&lt;form&gt;</div><div class="tag-desc">Formulario que agrupa inputs y los envía.</div></div>
+    <div class="tag-card"><div class="tag-name">&lt;table&gt;</div><div class="tag-desc">Tabla de datos. Con &lt;tr&gt; (filas), &lt;th&gt; (cabecera), &lt;td&gt; (celdas).</div></div>
+    <div class="tag-card"><div class="tag-name">&lt;strong&gt; / &lt;em&gt;</div><div class="tag-desc">Texto en negrita / cursiva con significado semántico.</div></div>
+  </div>
+
+  <h3>HTML vs HTML5</h3>
+  <p>HTML5 es la versión moderna (desde 2014). La diferencia más importante: HTML5 agregó etiquetas <strong>semánticas</strong> que describen el significado del contenido, no solo su apariencia.</p>
+
+  <div class="compare">
+    <div class="compare-head h4">HTML (antiguo) <span class="badge old">viejo</span></div>
+    <div class="compare-head h5">HTML5 (actual) <span class="badge new">moderno</span></div>
+    <div class="compare-row"><ic>&lt;div id="header"&gt;</ic></div>
+    <div class="compare-row"><ic>&lt;header&gt;</ic> — semántico, claro</div>
+    <div class="compare-row"><ic>&lt;div id="nav"&gt;</ic></div>
+    <div class="compare-row"><ic>&lt;nav&gt;</ic> — describe la navegación</div>
+    <div class="compare-row"><ic>&lt;div id="content"&gt;</ic></div>
+    <div class="compare-row"><ic>&lt;main&gt;</ic> / <ic>&lt;article&gt;</ic> / <ic>&lt;section&gt;</ic></div>
+    <div class="compare-row"><ic>&lt;div id="footer"&gt;</ic></div>
+    <div class="compare-row"><ic>&lt;footer&gt;</ic> — semántico</div>
+    <div class="compare-row">Sin video nativo</div>
+    <div class="compare-row"><ic>&lt;video src="..."&gt;</ic> nativo</div>
+    <div class="compare-row">Sin audio nativo</div>
+    <div class="compare-row"><ic>&lt;audio src="..."&gt;</ic> nativo</div>
+  </div>
+
+  <h3>Ejemplo práctico — La página cruda (solo HTML)</h3>
+  <p>Vamos a construir una tarjeta de perfil. Sin CSS se va a ver "trucha" pero va a funcionar. Este es el punto de partida:</p>
+
+  <pre data-lang="HTML"><code><span class="tag-c">&lt;!DOCTYPE html&gt;</span>
+<span class="tag-c">&lt;html</span> <span class="attr">lang</span>=<span class="val">"es"</span><span class="tag-c">&gt;</span>
+<span class="tag-c">&lt;head&gt;</span>
+  <span class="tag-c">&lt;meta</span> <span class="attr">charset</span>=<span class="val">"UTF-8"</span><span class="tag-c">&gt;</span>
+  <span class="tag-c">&lt;title&gt;</span>Perfil de Usuario<span class="tag-c">&lt;/title&gt;</span>
+<span class="tag-c">&lt;/head&gt;</span>
+<span class="tag-c">&lt;body&gt;</span>
+
+  <span class="tag-c">&lt;header&gt;</span>
+    <span class="tag-c">&lt;h1&gt;</span>Mi Perfil<span class="tag-c">&lt;/h1&gt;</span>
+    <span class="tag-c">&lt;nav&gt;</span>
+      <span class="tag-c">&lt;a</span> <span class="attr">href</span>=<span class="val">"#"</span><span class="tag-c">&gt;</span>Inicio<span class="tag-c">&lt;/a&gt;</span>
+      <span class="tag-c">&lt;a</span> <span class="attr">href</span>=<span class="val">"#"</span><span class="tag-c">&gt;</span>Proyectos<span class="tag-c">&lt;/a&gt;</span>
+      <span class="tag-c">&lt;a</span> <span class="attr">href</span>=<span class="val">"#"</span><span class="tag-c">&gt;</span>Contacto<span class="tag-c">&lt;/a&gt;</span>
+    <span class="tag-c">&lt;/nav&gt;</span>
+  <span class="tag-c">&lt;/header&gt;</span>
+
+  <span class="tag-c">&lt;main&gt;</span>
+    <span class="tag-c">&lt;section</span> <span class="attr">id</span>=<span class="val">"perfil"</span><span class="tag-c">&gt;</span>
+      <span class="tag-c">&lt;img</span> <span class="attr">src</span>=<span class="val">"https://i.pravatar.cc/100"</span> <span class="attr">alt</span>=<span class="val">"Avatar"</span><span class="tag-c">&gt;</span>
+      <span class="tag-c">&lt;h2&gt;</span>María González<span class="tag-c">&lt;/h2&gt;</span>
+      <span class="tag-c">&lt;p&gt;</span>Desarrolladora web fullstack apasionada por el diseño.<span class="tag-c">&lt;/p&gt;</span>
+      <span class="tag-c">&lt;ul&gt;</span>
+        <span class="tag-c">&lt;li&gt;</span>🌍 Buenos Aires, Argentina<span class="tag-c">&lt;/li&gt;</span>
+        <span class="tag-c">&lt;li&gt;</span>💼 5 años de experiencia<span class="tag-c">&lt;/li&gt;</span>
+        <span class="tag-c">&lt;li&gt;</span>⭐ HTML, CSS, JavaScript, React<span class="tag-c">&lt;/li&gt;</span>
+      <span class="tag-c">&lt;/ul&gt;</span>
+      <span class="tag-c">&lt;button&gt;</span>Contactar<span class="tag-c">&lt;/button&gt;</span>
+    <span class="tag-c">&lt;/section&gt;</span>
+  <span class="tag-c">&lt;/main&gt;</span>
+
+  <span class="tag-c">&lt;footer&gt;</span>
+    <span class="tag-c">&lt;p&gt;</span>© 2024 María González<span class="tag-c">&lt;/p&gt;</span>
+  <span class="tag-c">&lt;/footer&gt;</span>
+
+<span class="tag-c">&lt;/body&gt;</span>
+<span class="tag-c">&lt;/html&gt;</span></code></pre>
+
+  <div class="preview-wrap">
+    <div class="preview-label">▶ Vista previa — Solo HTML (sin estilos)</div>
+    <div class="preview">
+      <div class="preview-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div>
+      <iframe srcdoc='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Perfil</title></head><body><header><h1>Mi Perfil</h1><nav><a href="#">Inicio</a> | <a href="#">Proyectos</a> | <a href="#">Contacto</a></nav></header><main><section id="perfil"><img src="https://i.pravatar.cc/100" alt="Avatar"><h2>María González</h2><p>Desarrolladora web fullstack apasionada por el diseño.</p><ul><li>🌍 Buenos Aires, Argentina</li><li>💼 5 años de experiencia</li><li>⭐ HTML, CSS, JavaScript, React</li></ul><button>Contactar</button></section></main><footer><p>© 2024 María González</p></footer></body></html>' height="280"></iframe>
+    </div>
+  </div>
+
+  <div class="callout html">
+    <p>👆 ¿Ves? La estructura está ahí, toda la información está, pero se ve básica. El navegador aplica estilos por defecto. Ahora entra CSS.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ CSS ═══════════════════════════════ -->
+<section id="css" class="fade-in">
+  <span class="section-label css">// 02 — diseño</span>
+  <h2>CSS</h2>
+  <p><strong>Cascading Style Sheets</strong>. Define cómo se ve cada elemento HTML. La palabra "cascading" (en cascada) refiere a cómo los estilos se aplican en orden de especificidad y herencia.</p>
+
+  <h3>Sintaxis básica</h3>
+  <pre data-lang="CSS"><code><span class="sel">selector</span> {
+  <span class="prop">propiedad</span>: <span class="num">valor</span>;
+  <span class="prop">otra-propiedad</span>: <span class="num">otro-valor</span>;
+}</code></pre>
+
+  <h3>Los tres tipos de selectores</h3>
+  <pre data-lang="CSS"><code><span class="com">/* Por etiqueta — aplica a TODOS los &lt;p&gt; */</span>
+<span class="sel">p</span> {
+  <span class="prop">color</span>: <span class="num">gray</span>;
+}
+
+<span class="com">/* Por clase — aplica a elementos con class="destacado" */</span>
+<span class="sel">.destacado</span> {
+  <span class="prop">color</span>: <span class="num">blue</span>;
+  <span class="prop">font-weight</span>: <span class="num">bold</span>;
+}
+
+<span class="com">/* Por ID — aplica al elemento con id="perfil" (único) */</span>
+<span class="sel">#perfil</span> {
+  <span class="prop">background</span>: <span class="num">white</span>;
+  <span class="prop">padding</span>: <span class="num">20px</span>;
+}</code></pre>
+
+  <h3>¿Cómo se incluye en HTML?</h3>
+  <pre data-lang="HTML"><code><span class="com">&lt;!-- Opción 1: Archivo externo (recomendado) --&gt;</span>
+<span class="tag-c">&lt;link</span> <span class="attr">rel</span>=<span class="val">"stylesheet"</span> <span class="attr">href</span>=<span class="val">"estilos.css"</span><span class="tag-c">&gt;</span>
+
+<span class="com">&lt;!-- Opción 2: Bloque &lt;style&gt; en el &lt;head&gt; --&gt;</span>
+<span class="tag-c">&lt;style&gt;</span>
+  body { background: #f0f0f0; }
+<span class="tag-c">&lt;/style&gt;</span>
+
+<span class="com">&lt;!-- Opción 3: Inline (evitar, difícil de mantener) --&gt;</span>
+<span class="tag-c">&lt;p</span> <span class="attr">style</span>=<span class="val">"color: red;"</span><span class="tag-c">&gt;</span>Texto rojo<span class="tag-c">&lt;/p&gt;</span></code></pre>
+
+  <h3>Las propiedades más usadas</h3>
+  <div class="tags-grid">
+    <div class="tag-card"><div class="tag-name" style="color:var(--accent-css)">color</div><div class="tag-desc">Color del texto. Acepta nombres, hex (#fff), rgb(), hsl().</div></div>
+    <div class="tag-card"><div class="tag-name" style="color:var(--accent-css)">background</div><div class="tag-desc">Color o imagen de fondo. También background-color, background-image.</div></div>
+    <div class="tag-card"><div class="tag-name" style="color:var(--accent-css)">font-size</div><div class="tag-desc">Tamaño de texto. En px, rem, em, %, vw.</div></div>
+    <div class="tag-card"><div class="tag-name" style="color:var(--accent-css)">font-family</div><div class="tag-desc">Fuente tipográfica. Siempre poner una alternativa genérica.</div></div>
+    <div class="tag-card"><div class="tag-name" style="color:var(--accent-css)">padding</div><div class="tag-desc">Espacio interno (entre el borde y el contenido).</div></div>
+    <div class="tag-card"><div class="tag-name" style="color:var(--accent-css)">margin</div><div class="tag-desc">Espacio externo (entre el elemento y los demás).</div></div>
+    <div class="tag-card"><div class="tag-name" style="color:var(--accent-css)">border</div><div class="tag-desc">Borde del elemento: grosor, tipo, color.</div></div>
+    <div class="tag-card"><div class="tag-name" style="color:var(--accent-css)">border-radius</div><div class="tag-desc">Esquinas redondeadas. 50% = círculo perfecto.</div></div>
+    <div class="tag-card"><div class="tag-name" style="color:var(--accent-css)">display</div><div class="tag-desc">Cómo se muestra el elemento. block, inline, flex, grid.</div></div>
+    <div class="tag-card"><div class="tag-name" style="color:var(--accent-css)">flexbox</div><div class="tag-desc">display: flex — sistema de layout unidimensional (fila o columna).</div></div>
+    <div class="tag-card"><div class="tag-name" style="color:var(--accent-css)">width / height</div><div class="tag-desc">Ancho y alto del elemento. También max-width, min-height.</div></div>
+    <div class="tag-card"><div class="tag-name" style="color:var(--accent-css)">transition</div><div class="tag-desc">Anima cambios de propiedades suavemente.</div></div>
+  </div>
+
+  <h3>El modelo de caja (Box Model)</h3>
+  <p>Cada elemento HTML es una caja. Entender esto es fundamental:</p>
+  <pre data-lang="CSS"><code><span class="sel">.caja</span> {
+  <span class="prop">width</span>: <span class="num">200px</span>;        <span class="com">/* ancho del contenido */</span>
+  <span class="prop">padding</span>: <span class="num">20px</span>;       <span class="com">/* espacio interno */</span>
+  <span class="prop">border</span>: <span class="num">2px solid #333</span>; <span class="com">/* borde */</span>
+  <span class="prop">margin</span>: <span class="num">10px</span>;        <span class="com">/* espacio externo */</span>
+  <span class="com">/* Total visual = 200 + 20*2 + 2*2 = 244px */</span>
+  <span class="prop">box-sizing</span>: <span class="num">border-box</span>; <span class="com">/* ← truco: el padding se incluye en el width */</span>
+}</code></pre>
+
+  <h3>Ejemplo — Aplicando CSS a nuestra tarjeta</h3>
+  <pre data-lang="CSS"><code><span class="sel">* </span>{
+  <span class="prop">box-sizing</span>: <span class="num">border-box</span>;
+  <span class="prop">margin</span>: <span class="num">0</span>;
+  <span class="prop">padding</span>: <span class="num">0</span>;
+}
+
+<span class="sel">body </span>{
+  <span class="prop">font-family</span>: <span class="num">'Segoe UI', sans-serif</span>;
+  <span class="prop">background</span>: <span class="num">#f5f5f5</span>;
+  <span class="prop">display</span>: <span class="num">flex</span>;
+  <span class="prop">flex-direction</span>: <span class="num">column</span>;
+  <span class="prop">min-height</span>: <span class="num">100vh</span>;
+}
+
+<span class="sel">header </span>{
+  <span class="prop">background</span>: <span class="num">#2c3e50</span>;
+  <span class="prop">color</span>: <span class="num">white</span>;
+  <span class="prop">padding</span>: <span class="num">1rem 2rem</span>;
+  <span class="prop">display</span>: <span class="num">flex</span>;
+  <span class="prop">justify-content</span>: <span class="num">space-between</span>;
+  <span class="prop">align-items</span>: <span class="num">center</span>;
+}
+
+<span class="sel">nav a </span>{
+  <span class="prop">color</span>: <span class="num">#ecf0f1</span>;
+  <span class="prop">text-decoration</span>: <span class="num">none</span>;
+  <span class="prop">margin-left</span>: <span class="num">1rem</span>;
+  <span class="prop">font-size</span>: <span class="num">.9rem</span>;
+  <span class="prop">transition</span>: <span class="num">color .2s</span>;
+}
+
+<span class="sel">nav a:hover </span>{
+  <span class="prop">color</span>: <span class="num">#3498db</span>;
+}
+
+<span class="sel">#perfil </span>{
+  <span class="prop">background</span>: <span class="num">white</span>;
+  <span class="prop">border-radius</span>: <span class="num">12px</span>;
+  <span class="prop">padding</span>: <span class="num">2rem</span>;
+  <span class="prop">max-width</span>: <span class="num">400px</span>;
+  <span class="prop">margin</span>: <span class="num">3rem auto</span>;
+  <span class="prop">text-align</span>: <span class="num">center</span>;
+  <span class="prop">box-shadow</span>: <span class="num">0 4px 20px rgba(0,0,0,.1)</span>;
+}
+
+<span class="sel">img </span>{
+  <span class="prop">border-radius</span>: <span class="num">50%</span>;
+  <span class="prop">width</span>: <span class="num">100px</span>;
+  <span class="prop">border</span>: <span class="num">4px solid #3498db</span>;
+}
+
+<span class="sel">button </span>{
+  <span class="prop">background</span>: <span class="num">#3498db</span>;
+  <span class="prop">color</span>: <span class="num">white</span>;
+  <span class="prop">border</span>: <span class="num">none</span>;
+  <span class="prop">padding</span>: <span class="num">.7rem 1.8rem</span>;
+  <span class="prop">border-radius</span>: <span class="num">6px</span>;
+  <span class="prop">cursor</span>: <span class="num">pointer</span>;
+  <span class="prop">margin-top</span>: <span class="num">1rem</span>;
+  <span class="prop">transition</span>: <span class="num">background .2s</span>;
+}
+
+<span class="sel">button:hover </span>{
+  <span class="prop">background</span>: <span class="num">#2980b9</span>;
+}</code></pre>
+
+  <div class="preview-wrap">
+    <div class="preview-label">▶ Vista previa — HTML + CSS (mucho mejor 🎨)</div>
+    <div class="preview">
+      <div class="preview-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div>
+      <iframe srcdoc='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:"Segoe UI",sans-serif;background:#f5f5f5;display:flex;flex-direction:column;min-height:100vh}header{background:#2c3e50;color:white;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center}header h1{font-size:1.1rem}nav a{color:#ecf0f1;text-decoration:none;margin-left:1rem;font-size:.9rem;transition:color .2s}nav a:hover{color:#3498db}main{flex:1}#perfil{background:white;border-radius:12px;padding:2rem;max-width:360px;margin:2rem auto;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.1)}#perfil h2{margin:.8rem 0 .5rem;color:#2c3e50}#perfil p{color:#666;font-size:.9rem;margin-bottom:1rem}img{border-radius:50%;width:90px;border:4px solid #3498db}ul{list-style:none;text-align:left;background:#f8f9fa;border-radius:8px;padding:1rem;font-size:.85rem;color:#555}li{padding:.3rem 0}button{background:#3498db;color:white;border:none;padding:.7rem 1.8rem;border-radius:6px;cursor:pointer;margin-top:1rem;font-size:.9rem;transition:background .2s}button:hover{background:#2980b9}footer{background:#2c3e50;color:#aaa;text-align:center;padding:.8rem;font-size:.8rem}</style></head><body><header><h1>Mi Perfil</h1><nav><a href="#">Inicio</a><a href="#">Proyectos</a><a href="#">Contacto</a></nav></header><main><section id="perfil"><img src="https://i.pravatar.cc/100" alt="Avatar"><h2>María González</h2><p>Desarrolladora web fullstack apasionada por el diseño.</p><ul><li>🌍 Buenos Aires, Argentina</li><li>💼 5 años de experiencia</li><li>⭐ HTML, CSS, JavaScript, React</li></ul><button id="btn">Contactar</button></section></main><footer><p>© 2024 María González</p></footer></body></html>' height="420"></iframe>
+    </div>
+  </div>
+
+  <div class="callout css">
+    <p>✅ ¡Mucho mejor! Misma estructura HTML, completamente diferente apariencia. Ahora le agregamos vida con JavaScript.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ JS ═══════════════════════════════ -->
+<section id="js" class="fade-in">
+  <span class="section-label js">// 03 — interactividad</span>
+  <h2>JavaScript</h2>
+  <p><strong>El único lenguaje de programación del navegador</strong>. Con JS podés reaccionar a eventos, manipular el HTML y CSS dinámicamente, validar formularios, hacer pedidos a servidores, y mucho más.</p>
+
+  <h3>¿Cómo se incluye?</h3>
+  <pre data-lang="HTML"><code><span class="com">&lt;!-- Al final del body (recomendado) --&gt;</span>
+<span class="tag-c">&lt;script</span> <span class="attr">src</span>=<span class="val">"script.js"</span><span class="tag-c">&gt;&lt;/script&gt;</span>
+
+<span class="com">&lt;!-- O inline en el HTML --&gt;</span>
+<span class="tag-c">&lt;script&gt;</span>
+  console.log("Hola mundo");
+<span class="tag-c">&lt;/script&gt;</span></code></pre>
+
+  <h3>Conceptos fundamentales</h3>
+  <pre data-lang="JS"><code><span class="com">// Variables</span>
+<span class="kw">let</span> nombre = <span class="str">"María"</span>;       <span class="com">// puede cambiar</span>
+<span class="kw">const</span> edad = <span class="num">28</span>;           <span class="com">// no puede cambiar</span>
+
+<span class="com">// Funciones</span>
+<span class="kw">function</span> <span class="fn">saludar</span>(persona) {
+  <span class="kw">return</span> <span class="str">`Hola, ${persona}!`</span>;
+}
+
+<span class="com">// Condicionales</span>
+<span class="kw">if</span> (edad >= <span class="num">18</span>) {
+  console.log(<span class="str">"Es mayor de edad"</span>);
+} <span class="kw">else</span> {
+  console.log(<span class="str">"Es menor"</span>);
+}
+
+<span class="com">// Arrays y bucles</span>
+<span class="kw">const</span> skills = [<span class="str">"HTML"</span>, <span class="str">"CSS"</span>, <span class="str">"JS"</span>];
+skills.<span class="fn">forEach</span>(s => console.log(s));</code></pre>
+
+  <h3>El DOM — Document Object Model</h3>
+  <p>El DOM es la representación del HTML como un árbol de objetos que JS puede modificar. Es el puente entre JS y la página.</p>
+  <pre data-lang="JS"><code><span class="com">// Seleccionar elementos</span>
+<span class="kw">const</span> boton = document.<span class="fn">querySelector</span>(<span class="str">"button"</span>);
+<span class="kw">const</span> perfil = document.<span class="fn">querySelector</span>(<span class="str">"#perfil"</span>);
+<span class="kw">const</span> titulos = document.<span class="fn">querySelectorAll</span>(<span class="str">"h2"</span>);
+
+<span class="com">// Leer / modificar contenido</span>
+perfil.textContent = <span class="str">"Nuevo texto"</span>;
+perfil.innerHTML = <span class="str">"&lt;strong&gt;HTML adentro&lt;/strong&gt;"</span>;
+
+<span class="com">// Cambiar estilos</span>
+boton.style.background = <span class="str">"red"</span>;
+
+<span class="com">// Agregar / quitar clases CSS</span>
+perfil.<span class="fn">classList.add</span>(<span class="str">"activo"</span>);
+perfil.<span class="fn">classList.remove</span>(<span class="str">"oculto"</span>);
+perfil.<span class="fn">classList.toggle</span>(<span class="str">"destacado"</span>);</code></pre>
+
+  <h3>Eventos — Escuchar al usuario</h3>
+  <pre data-lang="JS"><code><span class="kw">const</span> boton = document.<span class="fn">querySelector</span>(<span class="str">"#btn"</span>);
+
+<span class="com">// El evento "click" se dispara cuando el usuario hace clic</span>
+boton.<span class="fn">addEventListener</span>(<span class="str">"click"</span>, <span class="kw">function</span>() {
+  <span class="fn">alert</span>(<span class="str">"¡Mensaje enviado!"</span>);
+});
+
+<span class="com">// Con arrow function (más moderno)</span>
+boton.<span class="fn">addEventListener</span>(<span class="str">"click"</span>, () => {
+  boton.textContent = <span class="str">"✓ Enviado"</span>;
+  boton.style.background = <span class="str">"#27ae60"</span>;
+});
+
+<span class="com">// Otros eventos comunes</span>
+input.<span class="fn">addEventListener</span>(<span class="str">"input"</span>, () => { ... });    <span class="com">// al escribir</span>
+form.<span class="fn">addEventListener</span>(<span class="str">"submit"</span>, (e) => { ... });   <span class="com">// al enviar</span>
+div.<span class="fn">addEventListener</span>(<span class="str">"mouseover"</span>, () => { ... });  <span class="com">// al pasar el mouse</span></code></pre>
+
+  <h3>Ejemplo completo — HTML + CSS + JS interactivo</h3>
+  <p>Acá está la tarjeta con funcionalidad real: el botón cambia de estado, se puede editar el nombre y hay un contador de visitas.</p>
+
+  <pre data-lang="JS"><code><span class="com">// Seleccionamos los elementos</span>
+<span class="kw">const</span> btn = document.<span class="fn">querySelector</span>(<span class="str">"#btn"</span>);
+<span class="kw">const</span> nombreEl = document.<span class="fn">querySelector</span>(<span class="str">"#nombre"</span>);
+<span class="kw">const</span> contador = document.<span class="fn">querySelector</span>(<span class="str">"#contador"</span>);
+<span class="kw">let</span> clicks = <span class="num">0</span>;
+
+<span class="com">// Botón de contacto — cambia al hacer clic</span>
+btn.<span class="fn">addEventListener</span>(<span class="str">"click"</span>, () => {
+  clicks++;
+  btn.textContent = <span class="str">`✓ Contactado (${clicks})`</span>;
+  btn.style.background = <span class="str">"#27ae60"</span>;
+  contador.textContent = <span class="str">`Clicks: ${clicks}`</span>;
+
+  <span class="com">// Vuelve al estado original después de 2 segundos</span>
+  <span class="fn">setTimeout</span>(() => {
+    btn.textContent = <span class="str">"Contactar"</span>;
+    btn.style.background = <span class="str">"#3498db"</span>;
+  }, <span class="num">2000</span>);
+});
+
+<span class="com">// Hacer el nombre editable con doble clic</span>
+nombreEl.<span class="fn">addEventListener</span>(<span class="str">"dblclick"</span>, () => {
+  <span class="kw">const</span> nuevo = <span class="fn">prompt</span>(<span class="str">"Nuevo nombre:"</span>, nombreEl.textContent);
+  <span class="kw">if</span> (nuevo) nombreEl.textContent = nuevo;
+});</code></pre>
+
+  <div class="preview-wrap">
+    <div class="preview-label">▶ Vista previa — HTML + CSS + JS (¡probalo! hacé clic en el botón)</div>
+    <div class="preview">
+      <div class="preview-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div>
+      <iframe srcdoc='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:"Segoe UI",sans-serif;background:#f5f5f5;display:flex;flex-direction:column;min-height:100vh}header{background:#2c3e50;color:white;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center}header h1{font-size:1.1rem}nav a{color:#ecf0f1;text-decoration:none;margin-left:1rem;font-size:.9rem}main{flex:1}#perfil{background:white;border-radius:12px;padding:2rem;max-width:360px;margin:2rem auto;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.1);transition:transform .2s}#perfil:hover{transform:translateY(-2px)}#perfil h2{margin:.8rem 0 .5rem;color:#2c3e50;cursor:pointer}#perfil h2:hover{color:#3498db}#perfil p{color:#666;font-size:.9rem;margin-bottom:1rem}img{border-radius:50%;width:90px;border:4px solid #3498db}ul{list-style:none;text-align:left;background:#f8f9fa;border-radius:8px;padding:1rem;font-size:.85rem;color:#555}li{padding:.3rem 0}button{background:#3498db;color:white;border:none;padding:.7rem 1.8rem;border-radius:6px;cursor:pointer;margin-top:1rem;font-size:.9rem;transition:background .2s, transform .1s}button:hover{background:#2980b9;transform:scale(1.02)}button:active{transform:scale(.98)}#contador{font-size:.75rem;color:#aaa;margin-top:.5rem}footer{background:#2c3e50;color:#aaa;text-align:center;padding:.8rem;font-size:.8rem}.tip{font-size:.7rem;color:#999;margin-top:.3rem;font-style:italic}</style></head><body><header><h1>Mi Perfil</h1><nav><a href="#">Inicio</a><a href="#">Proyectos</a><a href="#">Contacto</a></nav></header><main><section id="perfil"><img src="https://i.pravatar.cc/100" alt="Avatar"><h2 id="nombre" title="Doble clic para editar">María González</h2><p class="tip">↑ doble clic para editar nombre</p><p>Desarrolladora web fullstack apasionada por el diseño.</p><ul><li>🌍 Buenos Aires, Argentina</li><li>💼 5 años de experiencia</li><li>⭐ HTML, CSS, JavaScript, React</li></ul><button id="btn">Contactar</button><p id="contador"></p></section></main><footer><p>© 2024 María González</p></footer><script>const btn=document.querySelector("#btn");const nombreEl=document.querySelector("#nombre");const contador=document.querySelector("#contador");let clicks=0;btn.addEventListener("click",()=>{clicks++;btn.textContent=`✓ Contactado (${clicks})`;btn.style.background="#27ae60";contador.textContent=`Clicks totales: ${clicks}`;setTimeout(()=>{btn.textContent="Contactar";btn.style.background="#3498db"},2000)});nombreEl.addEventListener("dblclick",()=>{const nuevo=prompt("Nuevo nombre:",nombreEl.textContent);if(nuevo)nombreEl.textContent=nuevo});</script></body></html>' height="440"></iframe>
+    </div>
+  </div>
+
+  <div class="callout js">
+    <p>⚡ ¡Probalo! Hacé clic en el botón, esperá 2 segundos y volvé a hacer clic. También podés hacer doble clic en el nombre para editarlo. Eso es JavaScript en acción.</p>
+  </div>
+
+  <h3>Resumen del flujo completo</h3>
+  <pre data-lang="HTML"><code><span class="tag-c">&lt;!DOCTYPE html&gt;</span>
+<span class="tag-c">&lt;html&gt;</span>
+<span class="tag-c">&lt;head&gt;</span>
+  <span class="com">&lt;!-- 1. Conectamos el CSS --&gt;</span>
+  <span class="tag-c">&lt;link</span> <span class="attr">rel</span>=<span class="val">"stylesheet"</span> <span class="attr">href</span>=<span class="val">"estilos.css"</span><span class="tag-c">&gt;</span>
+<span class="tag-c">&lt;/head&gt;</span>
+<span class="tag-c">&lt;body&gt;</span>
+
+  <span class="com">&lt;!-- 2. Estructura HTML --&gt;</span>
+  <span class="tag-c">&lt;button</span> <span class="attr">id</span>=<span class="val">"btn"</span><span class="tag-c">&gt;</span>Contactar<span class="tag-c">&lt;/button&gt;</span>
+
+  <span class="com">&lt;!-- 3. Conectamos el JS (al final del body) --&gt;</span>
+  <span class="tag-c">&lt;script</span> <span class="attr">src</span>=<span class="val">"script.js"</span><span class="tag-c">&gt;&lt;/script&gt;</span>
+<span class="tag-c">&lt;/body&gt;</span>
+<span class="tag-c">&lt;/html&gt;</span></code></pre>
+</section>
+
+<!-- ═══════════════════════════════ CIERRE ═══════════════════════════════ -->
+<section class="fade-in">
+  <span class="section-label intro">// siguiente paso</span>
+  <h2>¿Y ahora qué?</h2>
+  <p>Ya entendés los tres pilares. La web entera está construida con estos tres lenguajes. El camino sugerido:</p>
+
+  <div class="compare">
+    <div class="compare-head h4">Nivel</div>
+    <div class="compare-head h5">Qué aprender</div>
+    <div class="compare-row">🟠 <strong>HTML sólido</strong></div>
+    <div class="compare-row">Formularios, tablas, accesibilidad (ARIA), SEO semántico.</div>
+    <div class="compare-row">🟢 <strong>CSS intermedio</strong></div>
+    <div class="compare-row">Flexbox en profundidad, CSS Grid, variables CSS, animaciones, responsive design con media queries.</div>
+    <div class="compare-row">🟡 <strong>JS intermedio</strong></div>
+    <div class="compare-row">Async/await, fetch API, ES6+, manipulación avanzada del DOM, localStorage.</div>
+    <div class="compare-row">⚡ <strong>Frameworks</strong></div>
+    <div class="compare-row">React, Vue o Svelte para JS. Tailwind CSS para estilos.</div>
+  </div>
+
+  <div class="callout info">
+    <p>💡 <strong>El mejor aprendizaje es haciendo.</strong> Tomá un proyecto real (una página personal, una lista de tareas, un quiz) y construilo desde cero con HTML + CSS + JS.</p>
+  </div>
+</section>
+
+<footer>// guía práctica · HTML · CSS · JavaScript · hecho con los tres</footer>
+
+<script>
+  // Intersection Observer para animaciones al hacer scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // Highlight del nav activo
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav a[href^="#"]');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 100) current = s.id;
+    });
+    navLinks.forEach(a => {
+      a.style.opacity = a.getAttribute('href') === '#' + current ? '1' : '.5';
+    });
+  });
+</script>
+</body>
+</html>
