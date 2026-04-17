@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clase 1 — Laravel Base</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--bg2:#171b26;--bg3:#1e2333;
+  --b:rgba(255,255,255,0.08);--b2:rgba(255,255,255,0.15);
+  --tx:#e8eaf0;--mu:#7b82a0;
+  --bl:#4f8ef7;--bld:rgba(79,142,247,0.12);
+  --gr:#3ecf8e;--grd:rgba(62,207,142,0.12);
+  --am:#f5a623;--amd:rgba(245,166,35,0.12);
+  --rd:#f06565;--rdd:rgba(240,101,101,0.12);
+  --mo:'JetBrains Mono',monospace;--sa:'Syne',sans-serif;
+}
+html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--sa);overflow:hidden}
+.deck{width:100vw;height:100vh;position:relative}
+.sl{position:absolute;inset:0;display:flex;flex-direction:column;padding:36px 56px 76px;opacity:0;pointer-events:none;transition:opacity .3s;overflow-y:auto}
+.sl.on{opacity:1;pointer-events:all}
+.sh{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-shrink:0}
+.sn{font-family:var(--mo);font-size:11px;color:var(--mu);border:.5px solid var(--b2);padding:3px 9px;border-radius:4px}
+.tg{font-size:11px;font-weight:600;letter-spacing:.08em;padding:3px 9px;border-radius:4px;text-transform:uppercase}
+.ti{background:var(--bld);color:var(--bl)}
+.tc{background:var(--amd);color:var(--am)}
+.tm{background:var(--grd);color:var(--gr)}
+.td{background:var(--rdd);color:var(--rd)}
+h1{font-size:44px;font-weight:800;line-height:1.1;letter-spacing:-.02em;margin-bottom:14px}
+h2{font-size:27px;font-weight:700;line-height:1.2;margin-bottom:16px}
+h3{font-size:14px;font-weight:600;margin-bottom:6px}
+p{font-size:14px;line-height:1.75}
+pre,code{font-family:var(--mo);background:var(--bg3);border:.5px solid var(--b2);border-radius:8px;color:var(--gr)}
+pre{font-size:13px;padding:14px 18px;line-height:1.8;margin:8px 0;overflow-x:auto;white-space:pre}
+code{font-size:12px;padding:2px 6px;border-radius:4px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
+.cd{background:var(--bg2);border:.5px solid var(--b);border-radius:12px;padding:16px 18px}
+.cd.b{border-color:rgba(79,142,247,.3);background:rgba(79,142,247,.06)}
+.cd.g{border-color:rgba(62,207,142,.3);background:rgba(62,207,142,.06)}
+.cd.a{border-color:rgba(245,166,35,.3);background:rgba(245,166,35,.06)}
+.cd.r{border-color:rgba(240,101,101,.3);background:rgba(240,101,101,.06)}
+.cb{background:var(--bg2);border:.5px solid var(--b);border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.cb:last-child{margin-bottom:0}
+.cbk{font-family:var(--mo);font-size:13px;font-weight:600;margin-bottom:4px}
+.cbv{font-size:13px;color:var(--mu);line-height:1.65}
+.al{border-radius:8px;padding:10px 14px;font-size:13px;line-height:1.7;margin:8px 0}
+.aw{background:var(--amd);border:.5px solid rgba(245,166,35,.3);color:#f5c96a}
+.ao{background:var(--grd);border:.5px solid rgba(62,207,142,.3);color:var(--gr)}
+.ai{background:var(--bld);border:.5px solid rgba(79,142,247,.3);color:#7ab3fa}
+.ar{background:var(--rdd);border:.5px solid rgba(240,101,101,.3);color:var(--rd)}
+.cmd{font-family:var(--mo);font-size:18px;font-weight:600;color:var(--gr);background:var(--bg3);border:.5px solid var(--b2);border-radius:10px;padding:13px 20px;display:block;margin:10px 0}
+.et{background:var(--bg3);border:.5px solid var(--b2);border-radius:10px;overflow:hidden;margin-bottom:12px}
+.er{font-family:var(--mo);font-size:13px;padding:7px 14px;border-bottom:.5px solid var(--b);display:flex;gap:10px;align-items:center}
+.er:last-child{border-bottom:none}
+.ek{color:var(--am);min-width:150px;flex-shrink:0}
+.ev{color:var(--gr)}
+.en{color:var(--mu);font-size:11px;margin-left:auto}
+.tm2{background:var(--bg3);border:.5px solid var(--b2);border-radius:10px;padding:14px 18px;margin-bottom:12px}
+.tl{font-family:var(--mo);font-size:13px;line-height:2}
+.ok{color:var(--gr)}.wn{color:var(--am)}.inf{color:var(--bl)}.mu{color:var(--mu)}
+.ft{font-family:var(--mo);font-size:13px;line-height:2.1;color:var(--mu);padding:14px 18px;background:var(--bg3);border:.5px solid var(--b);border-radius:10px}
+.ft .h1{color:var(--bl)}.ft .h2{color:var(--gr)}.ft .h3{color:var(--am)}
+.st{display:flex;flex-direction:column;gap:8px}
+.sp{display:flex;gap:12px;align-items:flex-start;background:var(--bg2);border:.5px solid var(--b);border-radius:10px;padding:12px 14px}
+.sn2{width:24px;height:24px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--mo);font-size:11px;font-weight:600;background:var(--bld);color:var(--bl)}
+.sb strong{font-size:13px;display:block;margin-bottom:3px}
+.sb p{font-size:13px;color:var(--mu);margin:0;line-height:1.6}
+.typ{display:flex;gap:10px;padding:8px 12px;background:var(--bg2);border:.5px solid var(--b);border-radius:8px;margin-bottom:6px}
+.tyc{font-family:var(--mo);font-size:12px;color:var(--gr);min-width:150px;flex-shrink:0}
+.tyd{font-size:13px;color:var(--mu)}
+.tyd strong{color:var(--tx)}
+.ptb{background:var(--bg2);border:.5px solid var(--b2);border-radius:10px;overflow:hidden}
+.pth{background:var(--bg3);padding:8px 14px;font-size:12px;color:var(--mu);border-bottom:.5px solid var(--b2)}
+.pt{width:100%;border-collapse:collapse;font-size:13px}
+.pt th{background:var(--bg3);color:var(--mu);font-weight:500;padding:7px 10px;text-align:left;border-bottom:.5px solid var(--b2)}
+.pt td{padding:7px 10px;border-bottom:.5px solid var(--b);color:var(--tx)}
+.pt tr:last-child td{border-bottom:none}
+.fb{background:var(--bg2);border:.5px solid var(--b);border-radius:10px;padding:10px 14px;margin-bottom:4px}
+.fl{font-family:var(--mo);font-size:12px}
+.flb{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin-bottom:3px}
+.fa{display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--bl);margin:2px 0}
+.lnk{display:flex;flex-direction:column;gap:8px}
+.li{display:flex;align-items:center;gap:12px;background:var(--bg2);border:.5px solid var(--b);border-radius:10px;padding:11px 14px;text-decoration:none;color:var(--tx);transition:border-color .2s}
+.li:hover{border-color:var(--bl)}
+.lib{flex:1}
+.lib strong{font-size:13px;display:block;margin-bottom:2px}
+.lib span{font-size:12px;color:var(--mu)}
+.evr{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-bottom:.5px solid var(--b);font-size:14px;gap:8px}
+.evr:last-child{border-bottom:none}
+.pts{font-family:var(--mo);font-size:12px;font-weight:600;color:var(--am);background:var(--amd);padding:2px 9px;border-radius:4px;flex-shrink:0}
+.ac{color:var(--bl)}
+.nav{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:var(--bg2);border:.5px solid var(--b2);border-radius:40px;padding:7px 14px;z-index:100}
+.nav button{background:none;border:none;color:var(--mu);cursor:pointer;font-size:18px;padding:3px 8px;border-radius:6px;transition:color .2s}
+.nav button:hover{color:var(--tx)}
+.ni{font-family:var(--mo);font-size:12px;color:var(--mu);min-width:56px;text-align:center}
+.dots{position:fixed;right:22px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:7px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--b2);cursor:pointer;transition:background .2s,transform .2s}
+.dot.active{background:var(--bl);transform:scale(1.5)}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- S1 PORTADA -->
+<div class="sl on" id="s1">
+  <div class="sh"><span class="sn">01/15</span><span class="tg ti">Clase 1 · Hito 2</span></div>
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+    <p style="font-family:var(--mo);font-size:12px;color:var(--mu);margin-bottom:14px">PROGRAMACIÓN WEB · LARAVEL · NIVEL BASE</p>
+    <h1>Estructura de<br><span class="ac">Laravel</span> y tu<br>primer modelo</h1>
+    <p style="font-size:16px;color:var(--mu);line-height:1.6;margin-top:16px">Objetivo: ver datos reales de tu BD en el navegador.<br>Nada más. Todo lo demás es para lograrlo.</p>
+    <div style="margin-top:26px;display:flex;gap:10px;flex-wrap:wrap">
+      <span style="font-size:13px;color:var(--mu);background:var(--bg2);border:.5px solid var(--b);padding:5px 12px;border-radius:6px">⏱ 2 horas</span>
+      <span style="font-size:13px;color:var(--mu);background:var(--bg2);border:.5px solid var(--b);padding:5px 12px;border-radius:6px">🐾 Demo docente: Mascota</span>
+      <span style="font-size:13px;color:var(--mu);background:var(--bg2);border:.5px solid var(--b);padding:5px 12px;border-radius:6px">💻 Tú: tu propia entidad</span>
+    </div>
+  </div>
+</div>
+
+<!-- S2 FLUJO COMPLETO -->
+<div class="sl" id="s2">
+  <div class="sh"><span class="sn">02/15</span><span class="tg ti">Flujo completo</span></div>
+  <h2>Lo que vas a construir hoy — paso a paso</h2>
+  <p style="color:var(--mu);margin-bottom:16px">Antes de tocar código, entiende el flujo completo. Cada paso depende del anterior.</p>
+  <div style="display:flex;flex-direction:column;gap:4px;max-width:580px;margin:0 auto">
+    <div class="fb"><div class="flb">Paso 1</div><div class="fl" style="color:var(--am)">Configurar .env → conectar Laravel a MySQL</div></div>
+    <div class="fa">↓</div>
+    <div class="fb"><div class="flb">Paso 2</div><div class="fl" style="color:var(--am)">php artisan migrate → Laravel crea la BD</div></div>
+    <div class="fa">↓</div>
+    <div class="fb"><div class="flb">Paso 3</div><div class="fl" style="color:var(--gr)">php artisan make:model Mascota -m → crea modelo y migración</div></div>
+    <div class="fa">↓</div>
+    <div class="fb"><div class="flb">Paso 4</div><div class="fl" style="color:var(--gr)">Editar modelo → agregar $fillable con los campos</div></div>
+    <div class="fa">↓</div>
+    <div class="fb"><div class="flb">Paso 5</div><div class="fl" style="color:var(--gr)">Editar migración → agregar columnas + php artisan migrate</div></div>
+    <div class="fa">↓</div>
+    <div class="fb"><div class="flb">Paso 6</div><div class="fl" style="color:var(--bl)">DBeaver → insertar 3 registros de prueba</div></div>
+    <div class="fa">↓</div>
+    <div class="fb"><div class="flb">Paso 7</div><div class="fl" style="color:var(--bl)">routes/web.php → consultar datos con Mascota::all()</div></div>
+    <div class="fa">↓</div>
+    <div class="fb"><div class="flb">Paso 8</div><div class="fl" style="color:var(--bl)">Crear vista → tabla HTML con @foreach mostrando datos reales</div></div>
+    <div class="fa">↓</div>
+    <div class="fb"><div class="flb">Resultado</div><div class="fl" style="color:var(--gr)">http://127.0.0.1:8000/mascotas → tabla con datos reales ✓</div></div>
+  </div>
+</div>
+
+<!-- S3 ESTRUCTURA -->
+<div class="sl" id="s3">
+  <div class="sh"><span class="sn">03/15</span><span class="tg ti">Estructura</span></div>
+  <h2>Carpetas que usas hoy</h2>
+  <div class="g2">
+    <div class="ft">
+      📁 tu-proyecto/<br>
+      &nbsp;&nbsp;├── <span class="h1">app/</span><br>
+      &nbsp;&nbsp;│&nbsp;&nbsp;└── <span class="h1">Models/</span> ← modelos<br>
+      &nbsp;&nbsp;├── <span class="h2">database/</span><br>
+      &nbsp;&nbsp;│&nbsp;&nbsp;└── <span class="h2">migrations/</span> ← tablas<br>
+      &nbsp;&nbsp;├── <span class="h3">routes/</span><br>
+      &nbsp;&nbsp;│&nbsp;&nbsp;└── <span class="h3">web.php</span> ← URLs<br>
+      &nbsp;&nbsp;├── <span class="h1">resources/</span><br>
+      &nbsp;&nbsp;│&nbsp;&nbsp;└── <span class="h1">views/</span> ← vistas<br>
+      &nbsp;&nbsp;└── <span class="h3">.env</span> ← configuración
+    </div>
+    <div>
+      <div class="cb"><div class="cbk" style="color:var(--bl)">app/Models/Mascota.php</div><div class="cbv">La clase PHP que representa tu entidad. Le dice a Laravel que existe una tabla <code>mascotas</code> y permite hacer consultas sin SQL.</div></div>
+      <div class="cb"><div class="cbk" style="color:var(--gr)">database/migrations/</div><div class="cbv">Define las columnas de la tabla. Sin ejecutar esto, la tabla no existe en la BD.</div></div>
+      <div class="cb"><div class="cbk" style="color:var(--am)">routes/web.php</div><div class="cbv">Cuando el usuario entra a <code>/mascotas</code>, aquí se consultan los datos y se envían a la vista.</div></div>
+      <div class="cb"><div class="cbk" style="color:var(--bl)">resources/views/mascotas/index.blade.php</div><div class="cbv">El HTML que el usuario ve. Recibe los datos y los muestra en una tabla con <code>@foreach</code>.</div></div>
+      <div class="cb"><div class="cbk" style="color:var(--am)">.env</div><div class="cbv">Aquí configuras la conexión a MySQL: nombre de BD, usuario, contraseña.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- S4 .ENV -->
+<div class="sl" id="s4">
+  <div class="sh"><span class="sn">04/15</span><span class="tg tc">Paso 1 — .env</span></div>
+  <h2>Conectar Laravel a MySQL</h2>
+  <p style="color:var(--mu);margin-bottom:14px">Laravel 11 usa SQLite por defecto. Debes cambiarlo a MySQL. Abre el archivo <code>.env</code> en la raíz del proyecto y modifica estas líneas:</p>
+  <div class="et">
+    <div class="er"><span class="ek">DB_CONNECTION</span><span class="ev">mysql</span><span class="en">← cambiar de sqlite a mysql</span></div>
+    <div class="er"><span class="ek">DB_HOST</span><span class="ev">127.0.0.1</span><span class="en">← dejar igual</span></div>
+    <div class="er"><span class="ek">DB_PORT</span><span class="ev">3306</span><span class="en">← dejar igual</span></div>
+    <div class="er"><span class="ek">DB_DATABASE</span><span class="ev">veterinaria</span><span class="en">← nombre de tu BD sin espacios</span></div>
+    <div class="er"><span class="ek">DB_USERNAME</span><span class="ev">root</span><span class="en">← tu usuario MySQL</span></div>
+    <div class="er"><span class="ek">DB_PASSWORD</span><span class="ev">tu_password</span><span class="en">← tu contraseña MySQL</span></div>
+  </div>
+  <div class="al ai">📌 El docente usa <code>veterinaria</code>. Tú pon el nombre de tu proyecto en minúsculas sin espacios: <code>mercado</code>, <code>cursosapp</code>, <code>clinica</code>.</div>
+  <div class="al aw">⚠ El <code>.env</code> nunca se sube a GitHub. Tiene contraseñas del proyecto.</div>
+</div>
+
+<!-- S5 MIGRATE INICIAL -->
+<div class="sl" id="s5">
+  <div class="sh"><span class="sn">05/15</span><span class="tg tc">Paso 2 — Migrate inicial</span></div>
+  <h2>Crear la base de datos</h2>
+  <p style="color:var(--mu);margin-bottom:10px">Con el <code>.env</code> configurado, ejecuta en la terminal:</p>
+  <code class="cmd">php artisan migrate</code>
+  <p style="color:var(--mu);margin-bottom:10px">Laravel detecta que la BD no existe y pregunta si crearla. Escribe <strong style="color:var(--gr)">yes</strong> y Enter:</p>
+  <div class="tm2">
+    <div class="tl"><span class="wn">WARN</span> &nbsp;The database 'veterinaria' does not exist on the 'mysql' connection.</div>
+    <div class="tl"><span class="inf">Would you like to create it? (yes/no) [yes]</span></div>
+    <div class="tl" style="color:var(--gr)">❯ yes</div>
+    <div class="tl"><span class="ok">INFO</span> &nbsp;Running migrations.</div>
+    <div class="tl"><span class="mu">&nbsp;&nbsp;create_users_table ..... </span><span class="ok">DONE</span></div>
+    <div class="tl"><span class="mu">&nbsp;&nbsp;create_cache_table ..... </span><span class="ok">DONE</span></div>
+    <div class="tl"><span class="mu">&nbsp;&nbsp;create_jobs_table ...... </span><span class="ok">DONE</span></div>
+  </div>
+  <div class="al ai">💡 Laravel crea la BD y 3 tablas del sistema: <code>users</code>, <code>cache</code>, <code>jobs</code>. No las toques, son de Laravel.</div>
+  <div class="al ao">✓ Abre DBeaver y verifica que la BD fue creada con esas 3 tablas.</div>
+</div>
+
+<!-- S6 MODELO Y MIGRACIÓN -->
+<div class="sl" id="s6">
+  <div class="sh"><span class="sn">06/15</span><span class="tg tm">Paso 3 — Modelo</span></div>
+  <h2>Crear modelo y migración</h2>
+  <p style="color:var(--mu);margin-bottom:8px">Un solo comando crea los dos archivos. El <code>-m</code> significa «también crea la migración».</p>
+  <code class="cmd">php artisan make:model Mascota -m</code>
+  <div class="al ai" style="margin-bottom:14px">🐾 El docente usa <code>Mascota</code>. Tú usa el nombre de tu entidad en singular con mayúscula: <code>Producto</code>, <code>Curso</code>, <code>Cliente</code>.</div>
+  <div class="g2">
+    <div class="cd b">
+      <div style="font-size:20px;margin-bottom:8px">📄</div>
+      <h3>app/Models/Mascota.php</h3>
+      <p style="font-size:13px;color:var(--mu);line-height:1.6;margin-top:6px">La clase PHP del modelo. <strong style="color:var(--tx)">Debes editarla</strong> para agregar <code>$fillable</code> con tus campos. Sin eso no puedes insertar datos.</p>
+    </div>
+    <div class="cd g">
+      <div style="font-size:20px;margin-bottom:8px">📋</div>
+      <h3>database/migrations/<br>xxxx_create_mascotas_table.php</h3>
+      <p style="font-size:13px;color:var(--mu);line-height:1.6;margin-top:6px">Define las columnas de la tabla. <strong style="color:var(--tx)">Debes editarlo</strong> para agregar tus campos antes de ejecutar migrate.</p>
+    </div>
+  </div>
+  <div class="al aw" style="margin-top:10px">⚠ Verifica en VSCode que los 2 archivos existen antes de continuar.</div>
+</div>
+
+<!-- S7 MODELO COMPLETO -->
+<div class="sl" id="s7">
+  <div class="sh"><span class="sn">07/15</span><span class="tg tm">Paso 4 — Modelo completo</span></div>
+  <h2>Editar el modelo — agregar $fillable</h2>
+  <p style="color:var(--mu);margin-bottom:10px">Abre <code>app/Models/Mascota.php</code>. El archivo completo debe quedar así:</p>
+  <pre>&lt;?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Mascota extends Model
+{
+    protected $fillable = ['nombre', 'especie', 'edad', 'peso'];
+}</pre>
+  <div class="g2" style="margin-top:12px">
+    <div class="cb">
+      <div class="cbk" style="color:var(--gr)">¿Qué es $fillable?</div>
+      <div class="cbv">Es la lista de campos que Laravel permite insertar o editar. Sin esta línea, si intentas insertar datos Laravel bloquea la operación y lanza un error de seguridad llamado «mass assignment».</div>
+    </div>
+    <div>
+      <div class="al ai">📌 Los nombres dentro del array deben ser exactamente iguales a los que pondrás en la migración.<br><br>Ejemplo para Curso:<br><code>protected $fillable = ['titulo', 'precio', 'duracion_horas', 'nivel'];</code></div>
+    </div>
+  </div>
+</div>
+
+<!-- S8 MIGRACIÓN -->
+<div class="sl" id="s8">
+  <div class="sh"><span class="sn">08/15</span><span class="tg tm">Paso 5 — Migración</span></div>
+  <h2>Editar la migración y crear la tabla</h2>
+  <div class="g2">
+    <div>
+      <p style="color:var(--mu);margin-bottom:10px">Abre el archivo de migración. Dentro de <code>Schema::create</code> agrega tus campos:</p>
+      <pre>Schema::create('mascotas', function (Blueprint $table) {
+    $table->id();
+    $table->string('nombre');
+    $table->string('especie');
+    $table->integer('edad');
+    $table->decimal('peso', 5, 2);
+    $table->timestamps();
+});</pre>
+      <div class="al aw">⚠ No borres <code>$table->id()</code> ni <code>$table->timestamps()</code>.</div>
+      <p style="margin-top:10px;color:var(--mu)">Luego ejecuta:</p>
+      <code class="cmd" style="font-size:16px;padding:11px 16px">php artisan migrate</code>
+      <div class="al ao">✓ Verifica en DBeaver que tu tabla aparece con los campos correctos.</div>
+    </div>
+    <div>
+      <p style="font-weight:600;margin-bottom:10px">Tipos de columnas:</p>
+      <div class="typ"><span class="tyc">string('campo')</span><span class="tyd"><strong>Texto corto.</strong> Nombres, títulos.</span></div>
+      <div class="typ"><span class="tyc">text('campo')</span><span class="tyd"><strong>Texto largo.</strong> Descripciones.</span></div>
+      <div class="typ"><span class="tyc">integer('campo')</span><span class="tyd"><strong>Número entero.</strong> Edad, stock.</span></div>
+      <div class="typ"><span class="tyc">decimal('campo',8,2)</span><span class="tyd"><strong>Decimal.</strong> Precios, peso.</span></div>
+      <div class="typ"><span class="tyc">boolean('campo')</span><span class="tyd"><strong>Verdadero/falso.</strong> Activo.</span></div>
+      <div class="typ"><span class="tyc">date('campo')</span><span class="tyd"><strong>Fecha.</strong> Nacimiento.</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- S9 INSERTAR DATOS DBEAVER -->
+<div class="sl" id="s9">
+  <div class="sh"><span class="sn">09/15</span><span class="tg td">Paso 6 — Insertar datos</span></div>
+  <h2>Agregar registros en DBeaver</h2>
+  <p style="color:var(--mu);margin-bottom:14px">Antes de probar la vista necesitas datos en la tabla. Agrégalos desde DBeaver:</p>
+  <div class="st">
+    <div class="sp"><div class="sn2">1</div><div class="sb"><strong>Abre DBeaver y conecta a tu BD</strong><p>Selecciona la base de datos configurada en el <code>.env</code></p></div></div>
+    <div class="sp"><div class="sn2">2</div><div class="sb"><strong>Expande la BD y busca tu tabla</strong><p>Haz doble clic sobre <code>mascotas</code> para abrirla</p></div></div>
+    <div class="sp"><div class="sn2">3</div><div class="sb"><strong>Clic en el botón + de la barra inferior</strong><p>Aparece una fila nueva vacía. Llena los campos: nombre, especie, edad, peso.</p></div></div>
+    <div class="sp"><div class="sn2">4</div><div class="sb"><strong>Guarda con Ctrl+S</strong><p>DBeaver pedirá confirmación. Acepta. Repite para tener mínimo 3 registros.</p></div></div>
+  </div>
+  <div class="al ao" style="margin-top:8px">✓ Verifica que los 3 registros aparecen en la tabla de DBeaver antes de continuar.</div>
+</div>
+
+<!-- S10 RUTA -->
+<div class="sl" id="s10">
+  <div class="sh"><span class="sn">10/15</span><span class="tg td">Paso 7 — Ruta</span></div>
+  <h2>Consultar datos y enviarlos a la vista</h2>
+  <p style="color:var(--mu);margin-bottom:10px">Abre <code>routes/web.php</code>. El archivo completo debe quedar exactamente así:</p>
+  <pre>&lt;?php
+
+use Illuminate\Support\Facades\Route;
+use App\Models\Mascota;  <span style="color:var(--mu)">// ← SIEMPRE al inicio, después de &lt;?php</span>
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::get('/mascotas', function () {
+    $mascotas = Mascota::all();  <span style="color:var(--mu)">// trae todos los registros de la tabla</span>
+    return view('mascotas.index', ['mascotas' => $mascotas]);
+    <span style="color:var(--mu)">// ↑ envía los datos a la vista con el nombre $mascotas</span>
+});</pre>
+  <div class="g2" style="margin-top:10px">
+    <div class="cb"><div class="cbk" style="color:var(--gr)">Mascota::all()</div><div class="cbv">Trae todos los registros de la tabla <code>mascotas</code>. Laravel ejecuta automáticamente <code>SELECT * FROM mascotas</code>. No necesitas escribir SQL.</div></div>
+    <div class="cb"><div class="cbk" style="color:var(--bl)">['mascotas' => $mascotas]</div><div class="cbv">Envía los datos a la vista. Dentro de la vista tendrás disponible la variable <code>$mascotas</code> con todos los registros.</div></div>
+  </div>
+  <div class="al aw">⚠ El <code>use App\Models\Mascota</code> DEBE estar al inicio del archivo después de <code>&lt;?php</code>. Si lo pones en otro lugar Laravel dará error de sintaxis.</div>
+</div>
+
+<!-- S11 VISTA COMPLETA -->
+<div class="sl" id="s11">
+  <div class="sh"><span class="sn">11/15</span><span class="tg tm">Paso 8 — Vista</span></div>
+  <h2>Crear la vista con tabla HTML</h2>
+  <p style="color:var(--mu);margin-bottom:10px">Crea la carpeta <code>resources/views/mascotas/</code> y dentro el archivo <code>index.blade.php</code>.</p>
+  <div class="al aw" style="margin-bottom:8px">⚠ Laravel 11 sin Breeze NO tiene layouts. No uses <code>@extends</code> ni <code>@section</code>. Usa HTML completo directo.</div>
+  <pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Lista de Mascotas&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Lista de Mascotas&lt;/h1&gt;
+
+    &lt;table border="1" cellpadding="8" cellspacing="0"&gt;
+        &lt;thead&gt;
+            &lt;tr&gt;
+                &lt;th&gt;ID&lt;/th&gt;
+                &lt;th&gt;Nombre&lt;/th&gt;
+                &lt;th&gt;Especie&lt;/th&gt;
+                &lt;th&gt;Edad&lt;/th&gt;
+                &lt;th&gt;Peso&lt;/th&gt;
+            &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+            @foreach($mascotas as $mascota)
+            &lt;tr&gt;
+                &lt;td&gt;{{ $mascota-&gt;id }}&lt;/td&gt;
+                &lt;td&gt;{{ $mascota-&gt;nombre }}&lt;/td&gt;
+                &lt;td&gt;{{ $mascota-&gt;especie }}&lt;/td&gt;
+                &lt;td&gt;{{ $mascota-&gt;edad }}&lt;/td&gt;
+                &lt;td&gt;{{ $mascota-&gt;peso }}&lt;/td&gt;
+            &lt;/tr&gt;
+            @endforeach
+        &lt;/tbody&gt;
+    &lt;/table&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+</div>
+
+<!-- S12 BLADE EXPLICADO -->
+<div class="sl" id="s12">
+  <div class="sh"><span class="sn">12/15</span><span class="tg tm">Blade explicado</span></div>
+  <h2>¿Qué hace cada parte de la vista?</h2>
+  <div class="g2">
+    <div>
+      <div class="cb"><div class="cbk" style="color:var(--am)">@foreach($mascotas as $mascota)</div><div class="cbv">Repite el bloque HTML por cada registro de la BD. Si hay 3 mascotas, crea 3 filas. <code>$mascota</code> representa cada registro uno por uno.</div></div>
+      <div class="cb"><div class="cbk" style="color:var(--gr)">{{ $mascota->nombre }}</div><div class="cbv">Muestra el valor del campo <code>nombre</code> del registro actual. Cambia <code>nombre</code> por cualquier campo de tu tabla: <code>precio</code>, <code>edad</code>, etc.</div></div>
+      <div class="cb"><div class="cbk" style="color:var(--am)">@endforeach</div><div class="cbv">Cierra el bloque. Todo lo que está entre <code>@foreach</code> y <code>@endforeach</code> se repite por cada registro.</div></div>
+      <div class="al ai" style="margin-top:8px">📌 Cambia los nombres de columnas por los campos de tu propia entidad. Ejemplo: <code>{{ $curso->titulo }}</code>, <code>{{ $curso->precio }}</code></div>
+    </div>
+    <div>
+      <p style="font-weight:600;margin-bottom:10px">Resultado en el navegador:</p>
+      <div class="ptb">
+        <div class="pth">http://127.0.0.1:8000/mascotas</div>
+        <div style="padding:14px">
+          <p style="font-size:15px;font-weight:600;margin-bottom:10px">Lista de Mascotas</p>
+          <table class="pt">
+            <thead><tr><th>ID</th><th>Nombre</th><th>Especie</th><th>Edad</th><th>Peso</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>Firulais</td><td>Perro</td><td>3</td><td>12.50</td></tr>
+              <tr><td>2</td><td>Michi</td><td>Gato</td><td>2</td><td>4.20</td></tr>
+              <tr><td>3</td><td>Piolín</td><td>Ave</td><td>1</td><td>0.08</td></tr>
+            </tbody>
+          </table>
+          <p style="font-size:11px;color:var(--mu);margin-top:8px">← datos reales de tu BD insertados en DBeaver</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S13 ERRORES COMUNES -->
+<div class="sl" id="s13">
+  <div class="sh"><span class="sn">13/15</span><span class="tg td">Errores comunes</span></div>
+  <h2>Errores y soluciones</h2>
+  <div class="st">
+    <div class="sp"><div class="sn2" style="background:var(--rdd);color:var(--rd)">!</div><div class="sb"><strong style="color:var(--rd)">Table doesn't exist</strong><p>No ejecutaste <code>migrate</code> después de editar la migración. Ejecuta <code>php artisan migrate</code>.</p></div></div>
+    <div class="sp"><div class="sn2" style="background:var(--rdd);color:var(--rd)">!</div><div class="sb"><strong style="color:var(--rd)">Table already exists</strong><p>La tabla ya existía. Ejecuta <code>php artisan migrate:fresh</code> para borrar y recrear todo.</p></div></div>
+    <div class="sp"><div class="sn2" style="background:var(--rdd);color:var(--rd)">!</div><div class="sb"><strong style="color:var(--rd)">View [layouts.app] not found</strong><p>Estás usando <code>@extends</code> pero no existe el layout. Usa HTML completo directo sin <code>@extends</code> ni <code>@section</code>.</p></div></div>
+    <div class="sp"><div class="sn2" style="background:var(--rdd);color:var(--rd)">!</div><div class="sb"><strong style="color:var(--rd)">Undefined variable $mascotas</strong><p>No enviaste los datos a la vista. Verifica que la ruta tiene <code>['mascotas' => $mascotas]</code> como segundo parámetro del <code>view()</code>.</p></div></div>
+    <div class="sp"><div class="sn2" style="background:var(--rdd);color:var(--rd)">!</div><div class="sb"><strong style="color:var(--rd)">La tabla aparece vacía en el navegador</strong><p>No hay registros. Inserta datos desde DBeaver siguiendo el Paso 6.</p></div></div>
+    <div class="sp"><div class="sn2" style="background:var(--rdd);color:var(--rd)">!</div><div class="sb"><strong style="color:var(--rd)">Error de sintaxis con use App\Models\Mascota</strong><p>El <code>use</code> está en medio del archivo. Debe ir al inicio, justo después de <code>&lt;?php</code>.</p></div></div>
+  </div>
+</div>
+
+<!-- S14 EVALUACIÓN -->
+<div class="sl" id="s14">
+  <div class="sh"><span class="sn">14/15</span><span class="tg td">Evaluación EC-1</span></div>
+  <h2>¿Qué debes mostrar al docente?</h2>
+  <p style="color:var(--mu);margin-bottom:14px">El docente te llama individualmente. 3 minutos. Todo desde tu propia pantalla:</p>
+  <div class="cd" style="margin-bottom:14px">
+    <div class="evr"><span>Tu tabla en DBeaver con mínimo 3 campos correctos</span><span class="pts">20 pts</span></div>
+    <div class="evr"><span>DBeaver muestra mínimo 3 registros insertados</span><span class="pts">20 pts</span></div>
+    <div class="evr"><span>La ruta consulta los datos con <code>Mascota::all()</code> y los envía a la vista</span><span class="pts">20 pts</span></div>
+    <div class="evr"><span>La vista muestra tabla HTML con datos reales usando <code>@foreach</code></span><span class="pts">20 pts</span></div>
+    <div class="evr"><span>Pregunta oral: ¿qué hace <code>Mascota::all()</code> y cómo llegan los datos a la vista?</span><span class="pts">20 pts</span></div>
+  </div>
+  <div class="cd">
+    <p style="font-weight:600;font-size:13px;margin-bottom:8px">Checklist antes de llamar al docente:</p>
+    <p style="font-size:13px;color:var(--mu);line-height:2.3">
+      ☐ &nbsp;Cambié <code>DB_CONNECTION=mysql</code> en el <code>.env</code><br>
+      ☐ &nbsp;Ejecuté <code>migrate</code> — BD creada con tablas del sistema<br>
+      ☐ &nbsp;Creé modelo con <code>make:model MiEntidad -m</code><br>
+      ☐ &nbsp;Agregué <code>$fillable</code> con mis campos en el modelo<br>
+      ☐ &nbsp;Edité la migración con mis campos y ejecuté <code>migrate</code><br>
+      ☐ &nbsp;Inserté 3 registros desde DBeaver<br>
+      ☐ &nbsp;<code>web.php</code> tiene el <code>use</code> al inicio y la ruta con <code>::all()</code><br>
+      ☐ &nbsp;Vista tiene HTML completo con <code>@foreach</code> y <code>{{ $campo }}</code><br>
+      ☐ &nbsp;El navegador muestra la tabla con datos reales
+    </p>
+  </div>
+</div>
+
+<!-- S15 RECURSOS -->
+<div class="sl" id="s15">
+  <div class="sh"><span class="sn">15/15</span><span class="tg ti">Recursos</span></div>
+  <h2>Si te quedas atascado</h2>
+  <p style="color:var(--mu);margin-bottom:14px">Videos en español directos al punto. Úsalos si el docente está ocupado.</p>
+  <div class="lnk">
+    <a class="li" href="https://www.youtube.com/watch?v=3Cjh0yGBMFw" target="_blank">
+      <span style="font-size:18px;flex-shrink:0">▶</span>
+      <div class="lib"><strong>Migraciones en Laravel — Coders Free</strong><span>Crear y ejecutar migraciones, tipos de columnas con ejemplos.</span></div>
+      <span style="color:var(--mu)">↗</span>
+    </a>
+    <a class="li" href="https://www.youtube.com/watch?v=imMFTnPRVkc" target="_blank">
+      <span style="font-size:18px;flex-shrink:0">▶</span>
+      <div class="lib"><strong>Rutas y Vistas en Laravel — Fazt</strong><span>Cómo crear rutas, pasar datos a la vista y mostrarlos con Blade.</span></div>
+      <span style="color:var(--mu)">↗</span>
+    </a>
+    <a class="li" href="https://www.youtube.com/watch?v=p4nzKFoGFk8" target="_blank">
+      <span style="font-size:18px;flex-shrink:0">▶</span>
+      <div class="lib"><strong>Blade Templates — hdeleon.net</strong><span>@foreach, {{ }}, layouts explicados con ejemplos reales.</span></div>
+      <span style="color:var(--mu)">↗</span>
+    </a>
+    <a class="li" href="https://laravel.com/docs/11.x/eloquent#retrieving-models" target="_blank">
+      <span style="font-size:18px;flex-shrink:0">📄</span>
+      <div class="lib"><strong>Documentación Eloquent — Laravel 11</strong><span>all(), find(), where() y más métodos de consulta.</span></div>
+      <span style="color:var(--mu)">↗</span>
+    </a>
+  </div>
+  <div class="al ao" style="margin-top:12px">✓ Antes de llamar al docente, lee el error completo en la terminal. Laravel siempre dice exactamente qué falló y en qué línea.</div>
+</div>
+
+</div>
+<nav class="nav">
+  <button onclick="prev()">←</button>
+  <span class="ni" id="ni">1 / 15</span>
+  <button onclick="next()">→</button>
+</nav>
+<div class="dots" id="dots"></div>
+<script>
+const T=15;let C=1;
+const DE=document.getElementById('dots');
+for(let i=1;i<=T;i++){const d=document.createElement('div');d.className='dot'+(i===1?' active':'');d.onclick=()=>go(i);DE.appendChild(d);}
+function go(n){document.getElementById('s'+C).classList.remove('on');DE.children[C-1].classList.remove('active');C=Math.max(1,Math.min(T,n));document.getElementById('s'+C).classList.add('on');DE.children[C-1].classList.add('active');document.getElementById('ni').textContent=C+' / '+T;}
+function next(){go(C+1)}function prev(){go(C-1)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')next();if(e.key==='ArrowLeft')prev();});
+</script>
+</body>
+</html>
